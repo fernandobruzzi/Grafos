@@ -134,7 +134,7 @@ void write2_csv(){
     
     myfilemat << "," << "Memoria utilizada[MB]" << "," << "Desempenho medio BFS[nanosegundos]" <<"," << "Desempenho medio DFS[nanosegundos]" << "," << "Pai dos vertices 10; 20; 30 BFS[1]" << "," << "Pai dos vertices 10; 20; 30 DFS[1]" << "," << "Pai dos vertices 10; 20; 30 BFS[2]" << "," << "Pai dos vertices 10; 20; 30 DFS[2]" << "," << "Pai dos vertices 10; 20; 30 BFS[3]" << "," << "Pai dos vertices 10; 20; 30 DFS[3]" << "," << "Distancia (10;20)" << "," << "Distancia(10;30)" << "," << "Distancia(20;30)" << "," << "Quantidade de Componentes conexas" << "," << "Tamanho maior componente conexa" << "," << "Tamanho menor componente conexa" << ","<< "Diametro grafo" << "," << "Diametro aproximado do Grafo";
      
-    for(int i = 1; i <= 1; i++){
+    for(int i = 1; i <= 4; i++){
         
         //primeiro pegamos todas as informações que precisamos para preencher o csv
         GrafoMatriz grafo(to_string(i));
@@ -213,7 +213,7 @@ void write2_csv(){
     cout << "abriu o arquivos" << endl; 
     myfileadj << "," << "Memoria utilizada[MB]" << "," << "Desempenho medio BFS[nanosegundos]" <<"," << "Desempenho medio DFS[nanosegundos]" << "," << "Pai dos vertices 10; 20; 30 BFS[1]" << "," << "Pai dos vertices 10; 20; 30 DFS[1]" << "," << "Pai dos vertices 10; 20; 30 BFS[2]" << "," << "Pai dos vertices 10; 20; 30 DFS[2]" << "," << "Pai dos vertices 10; 20; 30 BFS[3]" << "," << "Pai dos vertices 10; 20; 30 DFS[3]" << "," << "Distancia (10;20)" << "," << "Distancia(10;30)" << "," << "Distancia(20;30)" << "," << "Quantidade de Componentes conexas" << "," << "Tamanho maior componente conexa" << "," << "Tamanho menor componente conexa" << ","<< "Diametro grafo" << "," << "Diametro aproximado do Grafo";
     cout << "ESCREVREU AS COLUNAS TITULO" << endl; 
-    for(int i = 1; i <= 1; i++){
+    for(int i = 1; i <= 6; i++){
         
         //primeiro pegamos todas as informações que precisamos para preencher o csv
         GrafoMatriz grafo(to_string(i));
