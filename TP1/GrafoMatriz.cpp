@@ -1,5 +1,40 @@
 #include "GrafoMatriz.h"
 
+GrafoMatriz::GrafoMatriz(string num){
+
+    string source = "grafos_de_estudo/grafo_.txt";
+    source.insert(23, num); //definimos qual o grafo a ser trabalhado
+
+    ifstream myfile; //definimos a variavel para a leitura do arquivo
+    myfile.open(source); //abrimos o arquivo que queremos
+    
+    if(!myfile.is_open()){ //aqui confer  imos se o arquivo conseguiu ser lido
+        cerr << "Erro ao abrir o arquivo" << endl;
+        exit(1);
+    }
+
+    string linha; //declaramos uma string para guardar cada linha do arquivo de texto
+
+    getline(myfile, linha);//pegamos a primeira linha que é sempre a quantidade de vertices
+     
+    n = stoi(linha);
+    matriz_de_adjacencia.resize(n,vector<bool>(n,0));
+    degree.resize(n,0); 
+
+    while(getline(myfile, linha)){
+        
+        stringstream ss(linha); //separamos a nossa linha
+        
+        string v, u;
+    
+        ss >> v;
+        ss >> u;
+
+        set_edge(stoi(v), stoi(u));
+
+    }
+}
+
 int GrafoMatriz:: min_degree(){
     auto min = min_element(degree.begin(),degree.end());
     return (*min);
@@ -39,7 +74,9 @@ int GrafoMatriz::edge_count(){
 }
 
 
-void GrafoMatriz::BFS(int s, vector<int>&parent, vector<int>&level){
+void GrafoMatriz::BFS(int s, vector<int>&parent, vector<int>&level, double &duration){
+    
+    auto start = chrono::high_resolution_clock::now();
     queue<int> q;
     level = vector<int>(n, -1); //na bfs vamos considerar que se um vértice não foi descoberto ainda ele está no level -1
     parent = vector<int>(n, -1);//na bfs vamos considerar que se um vértice não tem pai, seu pai é -1
@@ -55,15 +92,19 @@ void GrafoMatriz::BFS(int s, vector<int>&parent, vector<int>&level){
         
         for(int i = 0; i<n; i++){
             if((matriz_de_adjacencia[s][i])&&(level[i]==-1)){
-                parent[i] = s; //na hora de ler o vetor de pais fora da BFS devemos considerar que o pai de um vértice v é pai[v] +1, com v representando um numero INTEIRO(1,2,...)
+                parent[i] = s+1; //somamos por causa da deducao feita no inicio e por causa da posicao deslocada pela matriz
                 level[i] = level[s] +1; // o level do filho é 1 abaixo do pai
                 q.push(i);
             }
         }
     }
+    auto end = chrono::high_resolution_clock::now();
+    duration = double(chrono::duration_cast<chrono::nanoseconds>(end-start).count());
 }
 
-void GrafoMatriz::DFS(int s, vector<int>&parent, vector<int>&level){
+void GrafoMatriz::DFS(int s, vector<int>&parent, vector<int>&level, double &duration){
+    
+    auto start = chrono::high_resolution_clock::now();
     stack<int> st;
     level = vector<int>(n, -1); //na dfs vamos considerar que se um vértice não foi descoberto ainda ele está no level -1
     parent = vector<int>(n, -1);//na dfs vamos considerar que se um vértice não tem pai, seu pai é -1
@@ -80,33 +121,56 @@ void GrafoMatriz::DFS(int s, vector<int>&parent, vector<int>&level){
         for(int i = 0; i < n; i++){
             if((matriz_de_adjacencia[s][i])&& (level[i]==-1)){
                 st.push(i);
-                parent[i] = s; //na hora de ler o vetor de pais fora da BFS devemos considerar que o pai de um vértice v é pai[v] +1, com v representando um numero INTEIRO(1,2,...)
+                parent[i] = s+1; //somamos por causa da deducao feita no inicio e por causa da posicao deslocada pela matriz
                 level[i] = level[s] + 1; //o nivel do filho é um abaixo do pai
             }
         }
     }
+    auto end = chrono::high_resolution_clock::now();
+    duration = double(chrono::duration_cast<chrono::nanoseconds>(end-start).count());
 }
 
 int GrafoMatriz::distance(int i, int j){
     vector<int> parent, level;
+    double duration;
+    BFS(i, parent, level, duration);
 
-    BFS(i, parent, level);
-
-    return(level[j-1]);
+    return(level[j]);
 }
 
 int GrafoMatriz::diameter(){
     //para achar o diametro de um grafo fazemos o vemos o maior dos menores caminhos(BFS) entre cada par de vertices
     vector<int> parent, level;
+    double duration;
     int d=0;
-    for(int i = 0; i< n; i++){
-        BFS(i, parent,level);
+    for(int i = 1; i<= n; i++){ //começamo em 1 por causa da BFS sempre fazer -- no vertice inicial
+        BFS(i, parent,level, duration);
         auto max = max_element(level.begin(), level.end());
         if(*max > d){
             d = *max;
         }
     }
     return d;
+}
+
+int GrafoMatriz::prox_diameter(){
+    vector<int> parent, level;
+    double duration;
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<int> distr(1,n);
+
+    //sorteamos um numero aleatorio para realizar a BFS
+    int r = distr(gen);
+
+    BFS(r, parent, level, duration);
+    auto max_it = max_element(level.begin(),level.end());
+    r = int(max_it - level.begin());
+    r++; //somamos por causa da nossa indexacao
+
+    BFS(r, parent, level, duration);
+    max_it = max_element(level.begin(),level.end());
+    return *max_it;
 }
 
 
@@ -145,15 +209,94 @@ void GrafoMatriz::connected_components(vector<vector<int>>&components){
     sort(components.begin(), components.end(), [](const vector<int>& a, const vector<int>& b){ return a.size() > b.size();});
 }
 
-vector<int> GrafoMatriz::neighbors(int u){
-    u--; //pela nossa indexacao
-    vector<int> nei;
-    for(int i = 0; i<n; i++ ){
-        if(matriz_de_adjacencia[u][i]){
-            nei.push_back((i+1));
-        }
+double GrafoMatriz::size(){
+
+    size_t total_size = 0;
+
+    for (const auto& vec : matriz_de_adjacencia) {
+        total_size += sizeof(vec); // tamanho do objeto vetor
+        total_size += sizeof(bool) * vec.capacity(); // tamanho dos elemetos do vetor
     }
-    return nei;
+
+    // conversao para MB
+    double size_in_MB = static_cast<double>(total_size) / (1024 * 1024);
+    return size_in_MB;
+}
+
+double GrafoMatriz::avg_bfs(){
+    vector<int> parent, level;
+    double duration;
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<int> distr(1,n);
+
+    
+    int r;
+    int i = 0;
+    double avg = 0;
+
+    while(i<100){
+
+        r = distr(gen);   
+        BFS(r,parent,level,duration);
+        avg+= duration;
+        i++;
+    }
+    avg = avg/100;
+
+    return avg;
+
+
+}
+
+double GrafoMatriz::avg_dfs(){
+    vector<int> parent, level;
+    double duration;
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<int> distr(1,n);
+
+    
+    int r;
+    int i = 0;
+    double avg = 0;
+
+    while(i<100){
+
+        r = distr(gen);   
+        DFS(r,parent,level,duration);
+        avg+= duration;
+        i++;
+    }
+    avg = avg/100;
+
+    return avg;
+
+
+}
+
+vector<vector<int>> GrafoMatriz:: parent_3_vertex(int start){
+
+    vector<vector<int>> resultado(2,vector<int>(3,-10));
+    
+    vector<int> parent, level;
+    double duration;
+    
+    BFS(start, parent, level, duration);
+    
+    resultado[0][0]= parent[9];
+    resultado[0][1]= parent[19];
+    resultado[0][2]= parent[29];
+    
+    
+    DFS(start,parent,level,duration);
+    
+    resultado[1][0]= parent[9];
+    resultado[1][1]= parent[19];
+    resultado[1][2]= parent[29];
+   
+    
+    return resultado;
 }
 
 // GrafoMatriz::~GrafoMatriz()
