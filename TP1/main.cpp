@@ -124,7 +124,7 @@ void write_csv(){
 
 
 
-void write2_csv(){
+void writepqp_csv(){
 
     ofstream myfilemat("resultados/Analise dos dados para representação em Matriz de Adjacencia.csv");
     if (!myfilemat.is_open()) {
@@ -287,13 +287,77 @@ void write2_csv(){
 }
 
 
+void write2_csv() {
+    // Abrir arquivos CSV
+    std::ofstream myfilemat("resultados/Analise_dos_dados_para_representacao_em_Matriz_de_Adjacencia.csv");
+    std::ofstream myfileadj("resultados/Analise_dos_dados_para_representacao_em_Vetor_de_Adjacencia.csv");
 
-int main(){
+    if (!myfilemat.is_open() || !myfileadj.is_open()) {
+        std::cerr << "Erro ao abrir os arquivos CSV" << std::endl;
+        return;
+    }
 
-    write2_csv();
+    // Escrever cabeçalhos
+    std::string header = ",Memoria utilizada[MB],Desempenho medio BFS[nanosegundos],Desempenho medio DFS[nanosegundos],Pai dos vertices 10; 20; 30 BFS[1],Pai dos vertices 10; 20; 30 DFS[1],Pai dos vertices 10; 20; 30 BFS[2],Pai dos vertices 10; 20; 30 DFS[2],Pai dos vertices 10; 20; 30 BFS[3],Pai dos vertices 10; 20; 30 DFS[3],Distancia (10;20),Distancia(10;30),Distancia(20;30),Quantidade de Componentes conexas,Tamanho maior componente conexa,Tamanho menor componente conexa,Diametro grafo,Diametro aproximado do Grafo";
+    myfilemat << header << std::endl;
+    myfileadj << header << std::endl;
 
-    return 0;
+    // Iterar sobre os grafos
+    for (int i = 1; i <= 6; i++) {
+        cout << i;
+        std::string grafo_num = std::to_string(i);
 
+        if(i<= 4){ // a partir do 5 nao roda
+        // GrafoMatriz
+        GrafoMatriz grafoMatriz(grafo_num);
+        std::vector<std::vector<int>> vec1M = grafoMatriz.parent_3_vertex(1);
+        std::vector<std::vector<int>> vec2M = grafoMatriz.parent_3_vertex(2);
+        std::vector<std::vector<int>> vec3M = grafoMatriz.parent_3_vertex(3);
+        std::vector<std::vector<int>> componentsM;
+        grafoMatriz.connected_components(componentsM);
+
+        myfilemat << "\nGrafo " << i << ",";
+        myfilemat << grafoMatriz.size() << "," << grafoMatriz.avg_bfs() << "," << grafoMatriz.avg_dfs() << ",";
+        myfilemat << vec1M[0][0] << " " << vec1M[0][1] << " " << vec1M[0][2] << ",";
+        myfilemat << vec1M[1][0] << " " << vec1M[1][1] << " " << vec1M[1][2] << ",";
+        myfilemat << vec2M[0][0] << " " << vec2M[0][1] << " " << vec2M[0][2] << ",";
+        myfilemat << vec2M[1][0] << " " << vec2M[1][1] << " " << vec2M[1][2] << ",";
+        myfilemat << vec3M[0][0] << " " << vec3M[0][1] << " " << vec3M[0][2] << ",";
+        myfilemat << vec3M[1][0] << " " << vec3M[1][1] << " " << vec3M[1][2] << ",";
+        myfilemat << grafoMatriz.distance(10, 20) << "," << grafoMatriz.distance(10, 30) << "," << grafoMatriz.distance(20, 30) << ",";
+        myfilemat << componentsM.size() << "," << componentsM[0].size() << "," << componentsM.back().size() << ",";
+        myfilemat << grafoMatriz.diameter() << "," << grafoMatriz.prox_diameter();
+        }
+        // GrafoAdj
+        GrafoAdj grafoAdj(grafo_num);
+        std::vector<std::vector<int>> vec1A = grafoAdj.parent_3_vertex(1);
+        std::vector<std::vector<int>> vec2A = grafoAdj.parent_3_vertex(2);
+        std::vector<std::vector<int>> vec3A = grafoAdj.parent_3_vertex(3);
+        std::vector<std::vector<int>> componentsA;
+        grafoAdj.connected_components(componentsA);
+
+        myfileadj << "\nGrafo " << i << ",";
+        myfileadj << grafoAdj.size() << "," << grafoAdj.avg_bfs() << "," << grafoAdj.avg_dfs() << ",";
+        myfileadj << vec1A[0][0] << " " << vec1A[0][1] << " " << vec1A[0][2] << ",";
+        myfileadj << vec1A[1][0] << " " << vec1A[1][1] << " " << vec1A[1][2] << ",";
+        myfileadj << vec2A[0][0] << " " << vec2A[0][1] << " " << vec2A[0][2] << ",";
+        myfileadj << vec2A[1][0] << " " << vec2A[1][1] << " " << vec2A[1][2] << ",";
+        myfileadj << vec3A[0][0] << " " << vec3A[0][1] << " " << vec3A[0][2] << ",";
+        myfileadj << vec3A[1][0] << " " << vec3A[1][1] << " " << vec3A[1][2] << ",";
+        myfileadj << grafoAdj.distance(10, 20) << "," << grafoAdj.distance(10, 30) << "," << grafoAdj.distance(20, 30) << ",";
+        myfileadj << componentsA.size() << "," << componentsA[0].size() << "," << componentsA.back().size() << ",";
+        myfileadj << grafoAdj.diameter() << "," << grafoAdj.prox_diameter();
+    }
+
+    // Fechar arquivos CSV
+    myfilemat.close();
+    myfileadj.close();
 }
+
+int main() {
+    write2_csv();
+    return 0;
+}
+
 
 
