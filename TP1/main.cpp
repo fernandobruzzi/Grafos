@@ -140,11 +140,12 @@ void writepqp_csv(){
         GrafoMatriz grafo(to_string(i));
         
         double tamanho = grafo.size();
-        
+        cout << "ok" << endl;
         double avgbfs = grafo.avg_bfs();
-                
+        cout << "calculou avg bfs" << endl;
         double avgdfs = grafo.avg_dfs();
-              
+        
+        cout << "calculou avg dfs" << endl;
         vector<vector<int>> vec1 = grafo.parent_3_vertex(1);
              
         vector<vector<int>> vec2 = grafo.parent_3_vertex(2);
@@ -157,12 +158,16 @@ void writepqp_csv(){
         
         distance[2] = grafo.distance(20,30);
         
+        cout << "calculou as distancia agfora vai para as componentes conexas" << endl;
         grafo.connected_components(components);
        
+        cout << "calculou comp conexas agora diametro" << endl;
         int diameter = grafo.diameter();
         
+        cout << "calculou diametro amem" << endl;
         int prox_diameter = grafo.prox_diameter();
-
+        
+        cout << "AGORA SÓ SORRIR" << endl;
         
         myfilemat << "\n" << "Grafo " << i << ","; 
         myfilemat << tamanho << "," << avgbfs << "," ;
@@ -303,7 +308,7 @@ void write2_csv() {
     myfileadj << header << std::endl;
 
     // Iterar sobre os grafos
-    for (int i = 1; i <= 6; i++) {
+    for (int i = 1; i <= 1; i++) {
         cout << i;
         std::string grafo_num = std::to_string(i);
 

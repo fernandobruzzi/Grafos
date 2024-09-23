@@ -143,7 +143,7 @@ int GrafoMatriz::diameter(){
     //para achar o diametro de um grafo fazemos o vemos o maior dos menores caminhos(BFS) entre cada par de vertices
     vector<int> parent, level;
     double duration;
-    int d=0;
+    int d=-2; //já que o menor valor possível é -1 e queremos só essa variavel para comparacao
     for(int i = 1; i<= n; i++){ //começamo em 1 por causa da BFS sempre fazer -- no vertice inicial
         
         BFS(i, parent,level, duration);
