@@ -8,11 +8,11 @@
 void write_csv(int i) {
 
     ostringstream ossmat;
-    ossmat << "resultados/Analise_dos_dados_para_representacao_em_Matriz_de_Adjacencia_grafo_" << i << ".txt";
+    ossmat << "resultados/Analise_dos_dados_para_representacao_em_Matriz_de_Adjacencia_grafo_" << i << ".csv";
     string filenamemat = ossmat.str();
 
     ostringstream ossadj;
-    ossadj << "resultados/Analise_dos_dados_para_representacao_em_Vetor_de_Adjacencia_grafo_" << i << ".txt";
+    ossadj << "resultados/Analise_dos_dados_para_representacao_em_Vetor_de_Adjacencia_grafo_" << i << ".csv";
     string filenameadj = ossadj.str();
 
     // Abrir arquivos CSV
