@@ -29,9 +29,9 @@ void write_csv(int i) {
     myfilemat << header << endl;
     myfileadj << header << endl;
 
-    // Iterar sobre os grafos
-    for (int i = 1; i <= 6; i++) {
-        cout << i;
+    // // Iterar sobre os grafos
+    // for (int i = 1; i <= 6; i++) {
+    //     cout << i;
         string grafo_num = to_string(i);
 
         if(i<= 4){ // a partir do 5 nao roda
@@ -76,7 +76,7 @@ void write_csv(int i) {
         myfileadj << grafoAdj.distance(10, 20) << "," << grafoAdj.distance(10, 30) << "," << grafoAdj.distance(20, 30) << ",";
         myfileadj << componentsA.size() << "," << componentsA[0].size() << "," << componentsA.back().size() << ",";
         myfileadj << grafoAdj.diameter() << "," << grafoAdj.prox_diameter();
-    }
+    // }
 
     // Fechar arquivos CSV
     myfilemat.close();
@@ -98,11 +98,11 @@ void write_txt(int i) {
     }
 
     // Iterar sobre os grafos
-    for (int i = 1; i <= 6; i++) {
+    // for (int i = 1; i <= 6; i++) {
         string grafo_num = std::to_string(i);
 
         // GrafoMatriz (apenas até o grafo 4, devido ao problema de memória)
-        if (i <= 4) {
+        if (i <= 2) {
             cout << "Processando GrafoMatriz " << i << endl;
             GrafoMatriz grafoMatriz(grafo_num);
             vector<vector<int>> componentsM;
@@ -154,7 +154,7 @@ void write_txt(int i) {
             myfiletext << endl;
         }
         myfiletext << endl;
-    }
+    // }
 
     // Fechar arquivo de texto
     myfiletext.close();
@@ -163,8 +163,10 @@ void write_txt(int i) {
 
 
 int main() {
-    write_csv();
-    write_txt();
+    for(int i = 1; i <= 6; i++){
+        write_csv(i);
+        write_txt(i);
+    }
     return 0;
 }
 
