@@ -5,10 +5,19 @@
 #include "GrafoAdj.h"
 
 
-void write_csv() {
+void write_csv(int i) {
+
+    ostringstream ossmat;
+    ossmat << "resultados/Analise_dos_dados_para_representacao_em_Matriz_de_Adjacencia_grafo_" << i << ".txt";
+    string filenamemat = ossmat.str();
+
+    ostringstream ossadj;
+    ossadj << "resultados/Analise_dos_dados_para_representacao_em_Vetor_de_Adjacencia_grafo_" << i << ".txt";
+    string filenameadj = ossadj.str();
+
     // Abrir arquivos CSV
-    ofstream myfilemat("resultados/Analise_dos_dados_para_representacao_em_Matriz_de_Adjacencia.csv");
-    ofstream myfileadj("resultados/Analise_dos_dados_para_representacao_em_Vetor_de_Adjacencia.csv");
+    ofstream myfilemat(filenamemat);
+    ofstream myfileadj(filenameadj);
 
     if (!myfilemat.is_open() || !myfileadj.is_open()) {
         cerr << "Erro ao abrir os arquivos CSV" <<endl;
@@ -74,9 +83,14 @@ void write_csv() {
     myfileadj.close();
 }
 
-void write_txt() {
+void write_txt(int i) {
+    
+    ostringstream oss;
+    oss << "resultados/Descricao_do_grafo_" << i << ".txt";
+    string filename = oss.str();
+
     // Abrir arquivo de texto
-    ofstream myfiletext("resultados/Descricao_dos_grafos.txt");
+    ofstream myfiletext(filename);
 
     if (!myfiletext.is_open()) {
         cerr << "Erro ao abrir o arquivo de texto" << endl;
@@ -101,7 +115,7 @@ void write_txt() {
             myfiletext << "Grau mínimo: " << grafoMatriz.min_degree() << endl;
             myfiletext << "Grau médio: " << grafoMatriz.average_degree() << endl;
             myfiletext << "Mediana dos graus: " << grafoMatriz.median_degree() << endl;
-            std::cout << "preencheu arquivo de descricao para GrafoMatriz " << i << endl;
+            cout << "preencheu arquivo de descricao para GrafoMatriz " << i << endl;
             for (size_t j = 0; j < componentsM.size(); ++j) {
                 myfiletext << "Componente: " << (j + 1) << " Tamanho: " << componentsM[j].size() << " Vertices: ";
                 for (size_t k = 0; k < componentsM[j].size(); ++k) {
@@ -128,7 +142,7 @@ void write_txt() {
         myfiletext << "Grau mínimo: " << grafoAdj.min_degree() << endl;
         myfiletext << "Grau médio: " << grafoAdj.average_degree() << endl;
         myfiletext << "Mediana dos graus: " << grafoAdj.median_degree() << endl;
-        std::cout << "preencheu arquivo de descricao para GrafoAdj " << i << endl;
+        cout << "preencheu arquivo de descricao para GrafoAdj " << i << endl;
         for (size_t j = 0; j < componentsA.size(); ++j) {
             myfiletext << "Componente: " << (j + 1) << " Tamanho: " << componentsA[j].size() << " Vertices: ";
             for (size_t k = 0; k < componentsA[j].size(); ++k) {
