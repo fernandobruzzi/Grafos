@@ -79,7 +79,7 @@ void write_txt() {
     ofstream myfiletext("resultados/Descricao_dos_grafos.txt");
 
     if (!myfiletext.is_open()) {
-        cerr << "Erro ao abrir o arquivo de texto" << std::endl;
+        cerr << "Erro ao abrir o arquivo de texto" << endl;
         return;
     }
 
@@ -89,19 +89,19 @@ void write_txt() {
 
         // GrafoMatriz (apenas até o grafo 4, devido ao problema de memória)
         if (i <= 4) {
-            cout << "Processando GrafoMatriz " << i << std::endl;
+            cout << "Processando GrafoMatriz " << i << endl;
             GrafoMatriz grafoMatriz(grafo_num);
             vector<vector<int>> componentsM;
             grafoMatriz.connected_components(componentsM);
 
             myfiletext << "GrafoMatriz " << i << ":\n";
-            myfiletext << "Número de vértices: " << grafoMatriz.get_vertex() << std::endl;
-            myfiletext << "Número de arestas: " << grafoMatriz.edge_count() << std::endl;
-            myfiletext << "Grau máximo: " << grafoMatriz.max_degree() << std::endl;
-            myfiletext << "Grau mínimo: " << grafoMatriz.min_degree() << std::endl;
-            myfiletext << "Grau médio: " << grafoMatriz.average_degree() << std::endl;
-            myfiletext << "Mediana dos graus: " << grafoMatriz.median_degree() << std::endl;
-            std::cout << "preencheu arquivo de descricao para GrafoMatriz " << i << std::endl;
+            myfiletext << "Número de vértices: " << grafoMatriz.get_vertex() << endl;
+            myfiletext << "Número de arestas: " << grafoMatriz.edge_count() << endl;
+            myfiletext << "Grau máximo: " << grafoMatriz.max_degree() << endl;
+            myfiletext << "Grau mínimo: " << grafoMatriz.min_degree() << endl;
+            myfiletext << "Grau médio: " << grafoMatriz.average_degree() << endl;
+            myfiletext << "Mediana dos graus: " << grafoMatriz.median_degree() << endl;
+            std::cout << "preencheu arquivo de descricao para GrafoMatriz " << i << endl;
             for (size_t j = 0; j < componentsM.size(); ++j) {
                 myfiletext << "Componente: " << (j + 1) << " Tamanho: " << componentsM[j].size() << " Vertices: ";
                 for (size_t k = 0; k < componentsM[j].size(); ++k) {
@@ -116,19 +116,19 @@ void write_txt() {
         }
 
         // GrafoAdj (para todos os grafos)
-        cout << "Processando GrafoAdj " << i << std::endl;
+        cout << "Processando GrafoAdj " << i << endl;
         GrafoAdj grafoAdj(grafo_num);
         vector<vector<int>> componentsA;
         grafoAdj.connected_components(componentsA);
 
         myfiletext << "GrafoAdj " << i << ":\n";
-        myfiletext << "Número de vértices: " << grafoAdj.get_vertex() << std::endl;
-        myfiletext << "Número de arestas: " << grafoAdj.edge_count() << std::endl;
-        myfiletext << "Grau máximo: " << grafoAdj.max_degree() << std::endl;
-        myfiletext << "Grau mínimo: " << grafoAdj.min_degree() << std::endl;
-        myfiletext << "Grau médio: " << grafoAdj.average_degree() << std::endl;
-        myfiletext << "Mediana dos graus: " << grafoAdj.median_degree() << std::endl;
-        std::cout << "preencheu arquivo de descricao para GrafoAdj " << i << std::endl;
+        myfiletext << "Número de vértices: " << grafoAdj.get_vertex() << endl;
+        myfiletext << "Número de arestas: " << grafoAdj.edge_count() << endl;
+        myfiletext << "Grau máximo: " << grafoAdj.max_degree() << endl;
+        myfiletext << "Grau mínimo: " << grafoAdj.min_degree() << endl;
+        myfiletext << "Grau médio: " << grafoAdj.average_degree() << endl;
+        myfiletext << "Mediana dos graus: " << grafoAdj.median_degree() << endl;
+        std::cout << "preencheu arquivo de descricao para GrafoAdj " << i << endl;
         for (size_t j = 0; j < componentsA.size(); ++j) {
             myfiletext << "Componente: " << (j + 1) << " Tamanho: " << componentsA[j].size() << " Vertices: ";
             for (size_t k = 0; k < componentsA[j].size(); ++k) {
@@ -137,9 +137,9 @@ void write_txt() {
                     myfiletext << ", "; // virgula entre os vertices
                 }
             }
-            myfiletext << std::endl;
+            myfiletext << endl;
         }
-        myfiletext << std::endl;
+        myfiletext << endl;
     }
 
     // Fechar arquivo de texto
@@ -149,7 +149,7 @@ void write_txt() {
 
 
 int main() {
-    // write_csv();
+    write_csv();
     write_txt();
     return 0;
 }

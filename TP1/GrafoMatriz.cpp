@@ -138,22 +138,22 @@ int GrafoMatriz::distance(int i, int j){
     return(level[j]);
 }
 
-int GrafoMatriz::diameter(){
-   
-    //para achar o diametro de um grafo fazemos o vemos o maior dos menores caminhos(BFS) entre cada par de vertices
+int GrafoMatriz::diameter() {
     vector<int> parent, level;
     double duration;
-    int d=-2; //já que o menor valor possível é -1 e queremos só essa variavel para comparacao
-    for(int i = 1; i<= n; i++){ //começamo em 1 por causa da BFS sempre fazer -- no vertice inicial
-        
-        BFS(i, parent,level, duration);
+    int d = 0;
+
+    for (int i = 1; i <= n; i++) {
+        cout << "Executando BFS para vértice " << i << endl;
+        BFS(i, parent, level, duration);
         auto maximum = max_element(level.begin(), level.end());
-        if(*maximum > d){ 
-            
+        if (*maximum > d) {
+            cout << "Encontrado um novo maior caminho: " << *maximum << endl;
             d = *maximum;
         }
     }
-    
+
+    cout << "Cálculo do diâmetro concluído" << endl;
     return d;
 }
 
