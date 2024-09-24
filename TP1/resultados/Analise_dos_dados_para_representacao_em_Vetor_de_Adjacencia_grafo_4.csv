@@ -1,0 +1,3 @@
+,Memoria utilizada[MB],Desempenho medio BFS[nanosegundos],Desempenho medio DFS[nanosegundos],Pai dos vertices 10; 20; 30 BFS[1],Pai dos vertices 10; 20; 30 DFS[1],Pai dos vertices 10; 20; 30 BFS[2],Pai dos vertices 10; 20; 30 DFS[2],Pai dos vertices 10; 20; 30 BFS[3],Pai dos vertices 10; 20; 30 DFS[3],Distancia (10;20),Distancia(10;30),Distancia(20;30),Quantidade de Componentes conexas,Tamanho maior componente conexa,Tamanho menor componente conexa,Diametro grafo,Diametro aproximado do Grafo
+
+Grafo 4,89.4425,5.86999e+07,5.83611e+07,194465 274921 136244,362748 154745 1531,-1 -1 -1,-1 -1 -1,-1 -1 -1,-1 -1 -1,3,-1,-1,2,250000,125000,Não foi possível obter experimentalmente,5
