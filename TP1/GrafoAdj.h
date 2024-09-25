@@ -5,12 +5,15 @@
 #include <vector>
 #include <queue> //para bfs
 #include <stack> // para dfs
-#include <numeric> //para inicializacao do vetor parent
+#include <numeric> //
 #include <iostream>
 #include <fstream> //para a leitura
 #include <sstream> //para a leitura
 #include <random>//para sortear inteiros  tralvez nao precisa
 #include <chrono> //para medir o tempo de execucao
+
+#include <thread> //para fazer multithread para acelerar o algoritmo do diametro
+#include <mutex>
 
 using namespace std;
 
@@ -38,7 +41,7 @@ public:
     int distance(int u, int v);
 
     int diameter();
-    int prox_diameter();
+    int prox_diameter(); //determina o diametro aproximado
 
     void dfs(int s, vector<bool>&visited, vector<int>&component); //temos uma dfs dedicada as componentes conexas
     void connected_components(vector<vector<int>>&components);
@@ -49,6 +52,9 @@ public:
     double avg_bfs();
     double avg_dfs();
     vector<vector<int>> parent_3_vertex(int start);
+
+    //diametro em multithreading
+    int diameter_multi();
 
 
     // ~GrafoAdj();

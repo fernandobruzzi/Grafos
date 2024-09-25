@@ -26,7 +26,8 @@ GrafoAdj::GrafoAdj(string num){
         stringstream ss(linha); //separamos a nossa linha
         
         string v, u;
-    
+
+        //obtemos cada vértice
         ss >> v;
         ss >> u;
 
@@ -40,16 +41,19 @@ GrafoAdj::GrafoAdj(string num){
 
 
 int GrafoAdj:: min_degree(){
+    //calculamos o menor grau
     auto min = min_element(degree.begin(),degree.end());
     return (*min);
 }
 
 int GrafoAdj:: max_degree(){
+    //calculamos o maior grau
     auto max = max_element(degree.begin(),degree.end());
     return (*max);
 }
 
 double GrafoAdj:: average_degree(){
+    //calculamos o grau médio
     double avg = 0;
     for(int i = 0; i < n; i++){
         avg+=degree[i];
@@ -59,13 +63,15 @@ double GrafoAdj:: average_degree(){
 }
 
 double GrafoAdj:: median_degree(){
+    //calculamos a mediana dos graus
+
     vector<int> vec = degree; // criamos uma copia para que possamos ordenar os graus sem perder a informação com relacao a posicao
     sort(vec.begin(), vec.end());
     if(n%2!=0){ //se temos uma sequencia com uma quantidade impar de termos, o termo do meio dela(quando ela está em ordem crescente é justamente a mediana)
         return vec[n/2];
     }
     else{
-        return ((vec[(n/2)-1]+vec[(n/2)])/2.0); //se a sequencia tem uma qunatidae par de termos temos que fazer a media dos dois termos que dividem a seuqencia ao meio
+        return ((vec[(n/2)-1]+vec[(n/2)])/2.0); //se a sequencia tem uma qunatidae par de termos temos que fazer a media dos dois termos que dividem a sequencia ao meio
     }
 }
 
@@ -87,7 +93,7 @@ void GrafoAdj::BFS(int s, vector<int>&parent, vector<int>&level, double &duratio
 
     s--; //fazemos isso por causa da indexacao
     q.push(s); 
-    level[s] = 0;
+    level[s] = 0; //na bfs vamos considerar que o level do vertice onde inciamos a busca é 0
     parent[s] = s; //na bfs vamos considerar que o pai do vertice onde inciiamos a busca é ele mesmo
 
     while(!q.empty()){
@@ -115,7 +121,7 @@ void GrafoAdj::DFS(int s, vector<int>&parent, vector<int>&level, double &duratio
 
     s--; //fazemos isso por causa da indexacao
     st.push(s); 
-    level[s] = 0;
+    level[s] = 0; //na bfs vamos considerar que o level do vertice onde inciamos a busca é 0
     parent[s] = s; //na dfs vamos considerar que o pai do vertice onde inciiamos a busca é ele mesmo
 
     while(!st.empty()){
@@ -137,30 +143,42 @@ void GrafoAdj::DFS(int s, vector<int>&parent, vector<int>&level, double &duratio
 }
 
 int GrafoAdj::distance(int i, int j){
+    //sabemos que a distancia entre dois vértices é dado pelo caminho mínimo entre eles, por isso usamos a BFS
     vector<int> parent, level;
     double duration;
 
     BFS(i, parent, level,duration);
 
-    return(level[j]);
+    return(level[j-1]);
 }
 
 int GrafoAdj::diameter(){
-    //para achar o diametro de um grafo fazemos o vemos o maior dos menores caminhos(BFS) entre cada par de vertices
+    //sabemos que o diamêtro do grafo só é definido quando o mesmo é conexo, e que para achar ele devemos ver todos os caminhos entre arestas para pegar o menor
+    
     vector<int> parent, level;
     double duration;
-    int d=-2; //já que o menor valor possível é -1 e queremos só essa variavel para comparacao
-    for(int i = 1; i<= n; i++){ //começamo em 1 por causa da BFS sempre fazer -- no vertice inicial
-        BFS(i, parent,level,duration);
-        auto max = max_element(level.begin(), level.end());
-        if(*max > d){
-            d = *max;
-        }
+    int d = 0;
+    BFS(1, parent, level, duration); //se ao rodar a BFS eu não conseguir atingir todos os vértices do grafo, ele não é conexo
+    auto minimum = min_element(level.begin(), level.end());
+
+    if(*minimum == -1){ //se eu tiver algum elemento -1 nos vetor dos levels, significa que tem algum vértice que não foi atingido pela BFS
+        return -1; //nesse caso -1 significa que o diametro é infinito
     }
+    //caso contrario devemos calcular o diametro realizando bfs em todos os vértices
+    for (int i = 1; i <= n; i++) {
+        BFS(i, parent, level, duration);
+        auto maximum = max_element(level.begin(), level.end());
+        if (*maximum > d) {
+            d = *maximum;
+            }
+        }
     return d;
 }
 
 int GrafoAdj::prox_diameter(){
+    //sabemos que o diamêtro do grafo só é definido quando o mesmo é conexo, e que para achar ele devemos ver todos os caminhos entre arestas para pegar o menor
+
+    //usamos a ideia da heurística "Second BFS para calcular" o diâmetro aproximado
     vector<int> parent, level;
     double duration;
     random_device rd;
@@ -175,11 +193,17 @@ int GrafoAdj::prox_diameter(){
     r = int(max_it - level.begin());
     r++; //somamos por causa da indexacao
 
+    auto minimum = min_element(level.begin(), level.end());
+    //se ao rodar a BFS eu não conseguir atingir todos os vértices do grafo, ele não é conexo, logo o diametro tem que ser 0
+    if(*minimum == -1){
+        return -1; //diametro infinito
+    }
     BFS(r, parent, level, duration);
     max_it = max_element(level.begin(),level.end());
     return *max_it;
 }
 
+//dfs para auxiliar o calculo das componentes conexas
 void GrafoAdj::dfs(int s, vector<bool>&visited, vector<int>&component){
     stack<int> st;
     st.push(s);
@@ -204,7 +228,7 @@ void GrafoAdj::connected_components(vector<vector<int>>&components){
 
     vector<bool> visited(n,0); //como durante a dfs ele sempre marca os visitados, podemos definir um vetor de visitados todo de 0 inicialmente
 
-    for(int i = 0; i < n; i++){
+    for(int i = 0; i < n; i++){//realizamos a BFS em todos os vértices que não tiverem sido atingindo ainda, como no início ninguém foi atingido, começamos do vértice indexado em 0 (vertice 1)
         if(!visited[i]){
             vector<int> component;
             dfs(i, visited, component);
@@ -215,7 +239,7 @@ void GrafoAdj::connected_components(vector<vector<int>>&components){
 }
 
 double GrafoAdj::size(){
-
+    //calculamos o tamanho da memória utilizada pela estrutura
     size_t total_size = 0;
 
     for (const auto& vec : lista_adjacencia) {
@@ -223,12 +247,12 @@ double GrafoAdj::size(){
         total_size += sizeof(int) * vec.capacity(); // tamanho dos elementos do vetor
     }
 
-    //conversao para mb
+    //conversao para MB
     double size_in_MB = static_cast<double>(total_size) / (1024 * 1024);
     return size_in_MB;
 }
 
-
+// a partir daqui temos uma sequencia de funcoes que coletam os dados para o relatorio e não precisam de nenhuma explicação específica
 double GrafoAdj::avg_bfs(){
     vector<int> parent, level;
     double duration;
@@ -304,6 +328,61 @@ vector<vector<int>> GrafoAdj:: parent_3_vertex(int start){
     
     return resultado;
 }
+
+//metodo definido para o caso de termos um grafo muito grande e precisamos encontrar o diametro
+mutex mtxq; // muter para um acesso seguro aos recursos thread-safe access to shared resources
+
+void bfs_task(GrafoAdj& graph, int start, int end, int& max_distance) {
+    std::vector<int> parent, level;
+    double duration;
+    for (int i = start; i < end; ++i) {
+        graph.BFS(i, parent, level, duration);
+        cout << "Grafos Vetor" << i << " " <<  endl;
+        int local_max = *std::max_element(level.begin(), level.end());
+        std::lock_guard<std::mutex> lock(mtxq);
+        if (local_max > max_distance) {
+            max_distance = local_max;
+        }
+    }
+}
+
+
+int GrafoAdj::diameter_multi() {
+
+    //sabemos que o diamêtro do grafo só é definido quando o mesmo é conexo, e que para achar ele devemos ver todos os caminhos entre arestas para pegar o menor
+
+    vector<int> parent, level;
+    double duration;
+    int d = 0;
+    BFS(1, parent, level, duration); //se ao rodar a BFS eu não conseguir atingir todos os vértices do grafo, ele não é conexo
+    auto minimum = min_element(level.begin(), level.end());
+    if(*minimum == -1){
+        return -1;
+    }
+    //caso contrário temos de calcular o diametro
+    int max_distance = -1; // já que não teremos nenhuma distância menor que isso
+    int vertex_count = n;
+    int num_threads = 8; // número de núcelos do processador
+    vector<thread> threads;
+
+    // divisão dos vértices entre as threads
+    int vertices_per_thread = (vertex_count + num_threads - 1) / num_threads;
+
+    for (int t = 0; t < num_threads; ++t) {
+        int start_vertex = t * vertices_per_thread + 1;
+        int end_vertex = std::min(start_vertex + vertices_per_thread, vertex_count + 1);
+
+        threads.emplace_back(bfs_task, std::ref(*this), start_vertex, end_vertex, std::ref(max_distance));
+    }
+
+    // espera todas as threads terminarem
+    for (auto& t : threads) {
+        t.join();
+    }
+
+    return max_distance;
+}
+
 
 // GrafoAdj::~GrafoAdj()
 // {

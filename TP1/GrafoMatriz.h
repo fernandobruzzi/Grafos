@@ -5,12 +5,15 @@
 #include <vector>
 #include <queue> //para bfs
 #include <stack> // para dfs
-#include <numeric> //para inicializacao do vetor parent
+#include <numeric> 
 #include <iostream>
 #include <fstream> //para a leitura
 #include <sstream> //para a leitura
 #include <random>//para sortear inteiros  tralvez nao precisa
 #include <chrono> //para medir o tempo de execucao
+
+#include <thread> //para fazer multithread para acelerar o algoritmo do diametro
+#include <mutex>
 
 using namespace std;
 
@@ -51,6 +54,8 @@ public:
     double avg_dfs();
     vector<vector<int>> parent_3_vertex(int start);
     
+    //diametro em multithreading
+    int diameter_multi();
 
 private:
     int n; //quantidade de vértices
