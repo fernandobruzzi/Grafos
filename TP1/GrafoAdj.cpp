@@ -153,18 +153,14 @@ int GrafoAdj::distance(int i, int j){
 }
 
 int GrafoAdj::diameter(){
-    //sabemos que o diamêtro do grafo só é definido quando o mesmo é conexo, e que para achar ele devemos ver todos os caminhos entre arestas para pegar o menor
+
+    //sabemos que o diamêtro do grafo pode ser obtido calculando a maior menor distância entre um par de vértices, ou seja, precisamos fazer uma BFS em todos os vértices e pegar o maior valor de level
     
     vector<int> parent, level;
     double duration;
-    int d = 0;
+    int d = -1; //menor valor possível para level
     BFS(1, parent, level, duration); //se ao rodar a BFS eu não conseguir atingir todos os vértices do grafo, ele não é conexo
-    auto minimum = min_element(level.begin(), level.end());
-
-    if(*minimum == -1){ //se eu tiver algum elemento -1 nos vetor dos levels, significa que tem algum vértice que não foi atingido pela BFS
-        return -1; //nesse caso -1 significa que o diametro é infinito
-    }
-    //caso contrario devemos calcular o diametro realizando bfs em todos os vértices
+    
     for (int i = 1; i <= n; i++) {
         BFS(i, parent, level, duration);
         auto maximum = max_element(level.begin(), level.end());
@@ -176,8 +172,7 @@ int GrafoAdj::diameter(){
 }
 
 int GrafoAdj::prox_diameter(){
-    //sabemos que o diamêtro do grafo só é definido quando o mesmo é conexo, e que para achar ele devemos ver todos os caminhos entre arestas para pegar o menor
-
+   
     //usamos a ideia da heurística "Second BFS para calcular" o diâmetro aproximado
     vector<int> parent, level;
     double duration;
@@ -193,11 +188,6 @@ int GrafoAdj::prox_diameter(){
     r = int(max_it - level.begin());
     r++; //somamos por causa da indexacao
 
-    auto minimum = min_element(level.begin(), level.end());
-    //se ao rodar a BFS eu não conseguir atingir todos os vértices do grafo, ele não é conexo, logo o diametro tem que ser 0
-    if(*minimum == -1){
-        return -1; //diametro infinito
-    }
     BFS(r, parent, level, duration);
     max_it = max_element(level.begin(),level.end());
     return *max_it;
@@ -349,17 +339,9 @@ void bfs_task(GrafoAdj& graph, int start, int end, int& max_distance) {
 
 int GrafoAdj::diameter_multi() {
 
-    //sabemos que o diamêtro do grafo só é definido quando o mesmo é conexo, e que para achar ele devemos ver todos os caminhos entre arestas para pegar o menor
+    //sabemos que o diamêtro do grafo pode ser obtido calculando a maior menor distância entre um par de vértices, ou seja, precisamos fazer uma BFS em todos os vértices e pegar o maior valor de level
+    
 
-    vector<int> parent, level;
-    double duration;
-    int d = 0;
-    BFS(1, parent, level, duration); //se ao rodar a BFS eu não conseguir atingir todos os vértices do grafo, ele não é conexo
-    auto minimum = min_element(level.begin(), level.end());
-    if(*minimum == -1){
-        return -1;
-    }
-    //caso contrário temos de calcular o diametro
     int max_distance = -1; // já que não teremos nenhuma distância menor que isso
     int vertex_count = n;
     int num_threads = 8; // número de núcelos do processador

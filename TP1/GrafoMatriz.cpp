@@ -149,19 +149,13 @@ int GrafoMatriz::distance(int i, int j){
 
 int GrafoMatriz::diameter() {
 
-    //sabemos que o diamêtro do grafo só é definido quando o mesmo é conexo, e que para achar ele devemos ver todos os caminhos entre arestas para pegar o menor
-
+    //sabemos que o diamêtro do grafo pode ser obtido calculando a maior menor distância entre um par de vértices, ou seja, precisamos fazer uma BFS em todos os vértices e pegar o maior valor de level
+    
     vector<int> parent, level;
     double duration;
-    int d = 0;
+    int d = -1; //menor valor possível para level
     BFS(1, parent, level, duration); //se ao rodar a BFS eu não conseguir atingir todos os vértices do grafo, ele não é conexo
-    auto minimum = min_element(level.begin(), level.end());
-
     
-    if(*minimum == -1){ //se eu tiver algum elemento -1 nos vetor dos levels, significa que tem algum vértice que não foi atingido pela BFS
-        return -1; //nesse caso -1 significa que o diametro é infinito
-    }
-    //caso contrario devemos calcular o diametro realizando bfs em todos os vértices
     for (int i = 1; i <= n; i++) {
         BFS(i, parent, level, duration);
         auto maximum = max_element(level.begin(), level.end());
@@ -174,7 +168,7 @@ int GrafoMatriz::diameter() {
 
 int GrafoMatriz::prox_diameter(){
     //sabemos que o diamêtro do grafo só é definido quando o mesmo é conexo, e que para achar ele devemos ver todos os caminhos entre arestas para pegar o menor
-    
+
     //usamos a ideia da heurística "Second BFS para calcular" o diâmetro aproximado
     vector<int> parent, level;
     double duration;
@@ -188,13 +182,7 @@ int GrafoMatriz::prox_diameter(){
     BFS(r, parent, level, duration);
     auto max_it = max_element(level.begin(),level.end());
     r = int(max_it - level.begin());
-    r++; //somamos por causa da nossa indexacao
-    
-    auto minimum = min_element(level.begin(), level.end());
-    //se ao rodar a BFS eu não conseguir atingir todos os vértices do grafo, ele não é conexo, logo o diametro tem que ser 0
-    if(*minimum == -1){
-        return -1; //diametro infinito
-    }
+    r++; //somamos por causa da indexacao
 
     BFS(r, parent, level, duration);
     max_it = max_element(level.begin(),level.end());
@@ -355,17 +343,7 @@ void bfs_task(GrafoMatriz& graph, int start, int end, int& max_distance) {
 int GrafoMatriz::diameter_multi() {
 
 
-    //sabemos que o diamêtro do grafo só é definido quando o mesmo é conexo, e que para achar ele devemos ver todos os caminhos entre arestas para pegar o menor
-
-    vector<int> parent, level;
-    double duration;
-    int d = 0;
-    BFS(1, parent, level, duration); //se ao rodar a BFS eu não conseguir atingir todos os vértices do grafo, ele não é conexo
-    auto minimum = min_element(level.begin(), level.end());
-    if(*minimum == -1){
-        return -1;
-    }
-    //caso contrário temos de calcular o diametro
+    //sabemos que o diamêtro do grafo pode ser obtido calculando a maior menor distância entre um par de vértices, ou seja, precisamos fazer uma BFS em todos os vértices e pegar o maior valor de level
     int max_distance = -1; // já que não teremos nenhuma distância menor que isso
     int vertex_count = n;
     int num_threads = 8; // número de núcelos do processador
@@ -386,7 +364,7 @@ int GrafoMatriz::diameter_multi() {
         t.join();
     }
 
-    return max_distance;
+     return max_distance;
 }
 // GrafoMatriz::~GrafoMatriz()
 // {
