@@ -112,6 +112,8 @@ void GrafoAdj::BFS(int s, vector<int>&parent, vector<int>&level, double &duratio
     duration = double(chrono::duration_cast<chrono::nanoseconds>(end - start).count());
 }
 
+
+
 void GrafoAdj::DFS(int s, vector<int>&parent, vector<int>&level, double &duration){
 
     auto start = chrono::high_resolution_clock::now();
@@ -127,11 +129,12 @@ void GrafoAdj::DFS(int s, vector<int>&parent, vector<int>&level, double &duratio
     while(!st.empty()){
         s = st.top();
         st.pop();
+        level[s] = level[parent[s]] +1; //aqui vamos explorar um vértice, só quando ele tiver o nivel definido ele será explorado e o seu nivel é um abaixo do pai
 
         for(int& i:lista_adjacencia[s]){
-            if(level[i-1]==-1){
+            if(level[i-1]==-1){ //note que enquanto um vertice nao tiver sido explorado, ele poderá ter seu pai alterado até que no final tem o pai como sendo quem foi explorado e descobriu ele
                 parent[i-1] = s+1; //somamos por causa da deducao feita no inicio e por causa da posicao deslocada pela matriz
-                level[i-1] = level[s] +1; // o level do filho é 1 abaixo do pai
+
                 st.push(i-1);
             }
         }

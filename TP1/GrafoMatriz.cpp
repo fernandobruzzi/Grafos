@@ -125,12 +125,15 @@ void GrafoMatriz::DFS(int s, vector<int>&parent, vector<int>&level, double &dura
     while(!st.empty()){
         s = st.top();
         st.pop();
+        
+        level[s] = level[parent[s]] +1; //aqui vamos explorar um vértice, só quando ele tiver o nivel definido ele será explorado e o seu nivel é um abaixo do pai
+
 
         for(int i = 0; i < n; i++){
             if((matriz_de_adjacencia[s][i])&& (level[i]==-1)){
                 st.push(i);
                 parent[i] = s+1; //somamos por causa da deducao feita no inicio e por causa da posicao deslocada pela matriz
-                level[i] = level[s] + 1; //o nivel do filho é um abaixo do pai
+                // level[i] = level[s] + 1; //o nivel do filho é um abaixo do pai
             }
         }
     }
