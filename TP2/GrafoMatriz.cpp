@@ -1,10 +1,11 @@
 #include "GrafoMatriz.h"
+const float INF = 1e9;
 
 GrafoMatriz::GrafoMatriz(string num){
 
     string source = "grafos_de_estudo/grafo_W_.txt";
     source.insert(25, num); //definimos qual o grafo a ser trabalhado
-
+    
     ifstream myfile; //definimos a variavel para a leitura do arquivo
     myfile.open(source); //abrimos o arquivo que queremos
     
@@ -18,9 +19,10 @@ GrafoMatriz::GrafoMatriz(string num){
     getline(myfile, linha);//pegamos a primeira linha que é sempre a quantidade de vertices
      
     n = stoi(linha);
-    matriz_de_adjacencia.resize(n,vector<float>(n,INFINITY));
-    degree.resize(n,0); 
-
+    matriz_de_adjacencia.resize(n,vector<float>(n,INF));
+    
+    degree.resize(n,0);
+    
     while(getline(myfile, linha)){
         
         stringstream ss(linha); //separamos a nossa linha
@@ -99,7 +101,7 @@ void GrafoMatriz::BFS(int s, vector<int>&parent, vector<int>&level, double &dura
         s = q.front();
         q.pop();
         for(int i = 0; i<n; i++){
-            if((matriz_de_adjacencia[s][i]!= INFINITY)&&(level[i]==-1)){
+            if((matriz_de_adjacencia[s][i]!= INF)&&(level[i]==-1)){
                 parent[i] = s+1; //somamos por causa da deducao feita no inicio e por causa da posicao deslocada pela matriz
                 level[i] = level[s] +1; // o level do filho é 1 abaixo do pai
                 q.push(i);
@@ -131,7 +133,7 @@ void GrafoMatriz::DFS(int s, vector<int>&parent, vector<int>&level, double &dura
 
 
         for(int i = 0; i < n; i++){
-            if((matriz_de_adjacencia[s][i]!=INFINITY)&& (level[i]==-1)){
+            if((matriz_de_adjacencia[s][i]!=INF)&& (level[i]==-1)){
                 st.push(i);
                 parent[i] = s+1; //somamos por causa da deducao feita no inicio e por causa da posicao deslocada pela matriz
                 // level[i] = level[s] + 1; //o nivel do filho é um abaixo do pai
@@ -144,49 +146,31 @@ void GrafoMatriz::DFS(int s, vector<int>&parent, vector<int>&level, double &dura
 
 
 
-int GrafoMatriz::diameter() {
 
-    //sabemos que o diamêtro do grafo pode ser obtido calculando a maior menor distância entre um par de vértices, ou seja, precisamos fazer uma BFS em todos os vértices e pegar o maior valor de level
-    
-    vector<int> parent, level;
-    double duration;
-    int d = -1; //menor valor possível para level
-    BFS(1, parent, level, duration); //se ao rodar a BFS eu não conseguir atingir todos os vértices do grafo, ele não é conexo
-    
-    for (int i = 1; i <= n; i++) {
-        BFS(i, parent, level, duration);
-        auto maximum = max_element(level.begin(), level.end());
-        if (*maximum > d) {
-            d = *maximum;
-            }
-        }
-    return d;
-}
+// int GrafoMatriz::prox_diameter(){
+//     //sabemos que o diamêtro do grafo só é definido quando o mesmo é conexo, e que para achar ele devemos ver todos os caminhos entre arestas para pegar o menor
 
-int GrafoMatriz::prox_diameter(){
-    //sabemos que o diamêtro do grafo só é definido quando o mesmo é conexo, e que para achar ele devemos ver todos os caminhos entre arestas para pegar o menor
+//     //usamos a ideia da heurística "Second BFS para calcular" o diâmetro aproximado
+//     vector<int> parent, level;
+//     double duration;
+//     random_device rd;
+//     mt19937 gen(rd());
+//     uniform_int_distribution<int> distr(1,n);
 
-    //usamos a ideia da heurística "Second BFS para calcular" o diâmetro aproximado
-    vector<int> parent, level;
-    double duration;
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_int_distribution<int> distr(1,n);
+//     //sorteamos um numero aleatorio para realizar a BFS
+//     int r = distr(gen);
 
-    //sorteamos um numero aleatorio para realizar a BFS
-    int r = distr(gen);
+//     BFS(r, parent, level, duration);
+//     auto max_it = max_element(level.begin(),level.end());
+//     r = int(max_it - level.begin());
+//     r++; //somamos por causa da indexacao
 
-    BFS(r, parent, level, duration);
-    auto max_it = max_element(level.begin(),level.end());
-    r = int(max_it - level.begin());
-    r++; //somamos por causa da indexacao
+//     BFS(r, parent, level, duration);
+//     max_it = max_element(level.begin(),level.end());
+//     return *max_it;
+// }
 
-    BFS(r, parent, level, duration);
-    max_it = max_element(level.begin(),level.end());
-    return *max_it;
-}
-
-//dfs para auxiliar o calculo das componentes conexas
+// dfs para auxiliar o calculo das componentes conexas
 void GrafoMatriz::dfs(vector<vector<float>>g, int s, vector<bool>&visited){
     stack<int> st;
     st.push(s);
@@ -198,7 +182,7 @@ void GrafoMatriz::dfs(vector<vector<float>>g, int s, vector<bool>&visited){
         
 
         for(int i = 0; i < n; i++){
-            if((g[s][i]!= INFINITY) && visited[i]==0){
+            if((g[s][i]!= INF) && visited[i]==0){
                 st.push(i);
                 visited[i]=1;
             }
@@ -209,7 +193,8 @@ void GrafoMatriz::dfs(vector<vector<float>>g, int s, vector<bool>&visited){
 }
 
 void GrafoMatriz::Grev(vector<vector<float>>&grev){
-    grev.resize(n, vector<float>(n,INFINITY));
+    grev.resize(n, vector<float>(n,INF));
+    
     for(int i = 0; i<n ; i++){
         for(int j = 0; j < n; j++){
             grev[i][j] = matriz_de_adjacencia[j][i];
@@ -389,6 +374,153 @@ int GrafoMatriz::diameter_multi() {
 
 
 
+int GrafoMatriz::min_element_Dijkstra_vec(vector<float> cost, vector<bool> explored){
+    
+    //usamos o min element para servir de indice e o min_cost para representar o custo, incialmente utilizamos valores que nos permitem com certeza achar um elemento valido que tenha custo minimo
+    int min_element = -1;
+    float min_cost = INF;
+
+    for(int j = 0 ; j < cost.size(); j++){
+        if((cost[j] < min_cost) && (explored[j]==0)){
+            min_element = j;
+            min_cost = cost[j];
+        }
+    }
+
+    return min_element;
+}
+
+void GrafoMatriz::Djikstra_vec(int s, vector<float>&cost, vector<int>&parent){
+    
+    s--;
+    cost.resize(n, INF);
+    parent.resize(n,-1);
+
+    vector<bool> explored(n,0);
+
+    cost[s] = 0;
+    parent[s] = s;
+
+    for(int c = 0; c < n; c++){
+
+        // pegamos o elemento de menor custo
+        int u = min_element_Dijkstra_vec(cost,explored);
+        if(explored[u]){cout << "SENDO REVISITADO";};
+        if(u==-1){
+            break; //se u == -1 significa que já exploramos tudo que tínhamos que explorar
+        }
+        if(cost[u] < 0){
+            cout << "Dijkstra não pode ser aplicada nesse grafo devido a presença de uma aresta negativa";
+            break;
+            //se cost[u] < 0, significa que na componente considerada onde estamos aplicando tem uma aresta com custo negativo, logo o dijkstra não irá retornar resultados corretos
+        }
+
+        explored[u] = 1;
+
+        for(int i = 0; i < n; i++){
+            if((explored[i]==0) &&(matriz_de_adjacencia[u][i]!=INF)){
+                if(cost[i] > cost[u] + matriz_de_adjacencia[u][i]){
+                    cost[i] = cost[u] + matriz_de_adjacencia[u][i];
+                    parent[i] = u;
+                }
+            }
+        }
+
+    }
+    
+}
+
+
+
+void GrafoMatriz::Djikstra_heap(int s, vector<float>&cost, vector<int>&parent){
+
+    s--;
+    priority_queue<pair<float, int>, vector<pair<float, int>>, Compare> heap;
+    parent.resize(n,-1);
+    cost.resize(n,INF);
+    vector<bool> explored(n,0);
+
+
+
+    heap.push({0,s});
+    cost[s] = 0;
+    parent[s] = s;
+
+
+    while(!heap.empty()){
+
+        auto top = heap.top(); //pegamos o elemento do topo
+        int u = top.second;
+        heap.pop(); // removemos o elemento do topo
+
+        if(cost[u] < 0){
+            cout << "Dijkstra não pode ser aplicada nesse grafo devido a presença de uma aresta negativa";
+            break;
+            //se cost[u] < 0, significa que na componente considerada onde estamos aplicando tem uma aresta com custo negativo, logo o dijkstra não irá retornar resultados corretos
+        }
+        
+        for(int i = 0; i < n; i++){
+            if(explored[u]==0){
+                if(matriz_de_adjacencia[u][i]!=INF){
+                    if(cost[i] > cost[u] + matriz_de_adjacencia[u][i]){
+                        cost[i] = cost[u] + matriz_de_adjacencia[u][i];
+                        heap.push({cost[u] + matriz_de_adjacencia[u][i],i});
+                        parent[i] = u;
+                    }
+                }
+            }
+        }
+    }
+    
+}
+
+
+void GrafoMatriz::Dijkstraporfavor(int src, vector<float>&dist, vector<int>&parent, double &duration) {
+    // Iniciando o cronômetro
+    auto start = chrono::high_resolution_clock::now();
+
+    src--; // Ajuste de índice para trabalhar com a matriz
+
+    dist = vector<float>(n, INF); // Inicializa distâncias com infinito
+    parent = vector<int>(n, -1); // Inicializa os pais como -1
+    vector<bool> visited(n, false); // Vetor de vértices visitados
+
+    // Definimos uma fila de prioridade para escolher sempre o vértice com a menor distância
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+
+    // Distância do vértice origem para ele mesmo é 0
+    dist[src] = 0;
+    parent[src] = src; // O pai da origem é ela mesma
+    pq.push({0, src}); // Colocamos o vértice origem na fila
+
+    while (!pq.empty()) {
+        int u = pq.top().second; // Pegamos o vértice com menor distância
+        pq.pop();
+
+        if (visited[u]) continue;
+        visited[u] = true;
+
+        // Relaxamento das arestas
+        for (int v = 0; v < n; ++v) {
+            if (matriz_de_adjacencia[u][v] != INF && !visited[v]) {
+                int peso = matriz_de_adjacencia[u][v];
+
+                // Verifica se podemos reduzir a distância
+                if (dist[u] + peso < dist[v]) {
+                    dist[v] = dist[u] + peso;
+                    parent[v] = u + 1; // Ajuste de índice para a matriz de adjacência
+                    pq.push({dist[v], v}); // Adiciona o vértice à fila de prioridade
+                }
+            }
+        }
+    }
+
+    // Parando o cronômetro
+    auto end = chrono::high_resolution_clock::now();
+    duration = double(chrono::duration_cast<chrono::nanoseconds>(end - start).count());
+}
+
+//a ser definido corretamente com dijkstra
 int GrafoMatriz::distance(int i, int j){
     //sabemos que a distancia entre dois vértices é dado pelo caminho mínimo entre eles, por isso usamos a BFS
     vector<int> parent, level;
@@ -397,8 +529,23 @@ int GrafoMatriz::distance(int i, int j){
     
     return(level[j-1]);
 }
-// GrafoMatriz::~GrafoMatriz()
-// {
 
-// }
 
+int GrafoMatriz::diameter() {
+
+    //sabemos que o diamêtro do grafo pode ser obtido calculando a maior menor distância entre um par de vértices, ou seja, precisamos fazer uma BFS em todos os vértices e pegar o maior valor de level
+    
+    vector<int> parent, level;
+    double duration;
+    int d = -1; //menor valor possível para level
+    BFS(1, parent, level, duration); //se ao rodar a BFS eu não conseguir atingir todos os vértices do grafo, ele não é conexo
+    
+    for (int i = 1; i <= n; i++) {
+        BFS(i, parent, level, duration);
+        auto maximum = max_element(level.begin(), level.end());
+        if (*maximum > d) {
+            d = *maximum;
+            }
+        }
+    return d;
+}

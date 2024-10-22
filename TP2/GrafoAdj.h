@@ -19,6 +19,13 @@ using namespace std;
 
 #pragma once
 
+// //comparador usado para heap 
+// struct Compare {
+//     bool operator()(pair<float, int> const& p1, pair<float, int> const& p2) {
+//         return p1.first > p2.first; // usamos a distancia para montar o min heap
+//     }
+// };
+
 class GrafoAdj
 {
 public:
@@ -28,7 +35,7 @@ public:
     int get_vertex(){return n;};
     int get_degree(int i){return degree[i-1];};
 
-    void set_edge(int i, int j){lista_adjacencia[i-1].push_back(j); lista_adjacencia[j-1].push_back(i); degree[i-1]+=1; degree[j-1]+=1;};
+    void set_edge(int i, int j, float w){lista_adjacencia[i-1].push_back(make_pair(j-1, w)); degree[i-1]+=1;};
     
     int min_degree();
     int max_degree();
@@ -41,9 +48,11 @@ public:
     int distance(int u, int v);
 
     int diameter();
-    int prox_diameter(); //determina o diametro aproximado
+    int prox_diameter(); //nao faz sentido mais tentarmos ver o diametro aproximado já que não tem heuristica admissivel para isso devido aos pesos
 
-    void dfs(int s, vector<bool>&visited, vector<int>&component); //temos uma dfs dedicada as componentes conexas
+    void dfs(vector<vector<pair<int,float>>>, int s, vector<bool>&visited); //temos uma dfs dedicada as componentes conexas
+    
+    void Grev(vector<vector<pair<int,float>>>&grev); //retorna um Grafo com as arestas invertidas
     void connected_components(vector<vector<int>>&components);
 
 
@@ -56,12 +65,25 @@ public:
     //diametro em multithreading
     int diameter_multi();
 
+    void Djikstra_vec(int s, vector<float>&cost, vector<int>&parent);
 
+
+    bool exist_edge(int i, int j){
+        i--;
+        bool b = false;
+        for(pair<int,float>&p : lista_adjacencia[i]){
+            if(p.first==j-1){
+                b = true;
+            }
+        }
+        return b;
+    }
+    //falta determinar a funcao de distancai de de diametro ja que precisamos de dijsktra para issso
     // ~GrafoAdj();
 
 private:
     int n; //quantidade de vértices
-    vector<vector<int>> lista_adjacencia; //representação em matriz de adjacencia
+    vector<vector<pair<int, float>>> lista_adjacencia; //representação em matriz de adjacencia
     vector<int> degree; //grau de cada vértices
 };
 

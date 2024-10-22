@@ -11,6 +11,7 @@
 #include <sstream> //para a leitura
 #include <random>//para sortear inteiros  tralvez nao precisa
 #include <chrono> //para medir o tempo de execucao
+#include <utility> //para montarmos nosso min heap com um par de valores valor e vertice
 // #include <limits> //para representar infinito
 
 #include <thread> //para fazer multithread para acelerar o algoritmo do diametro
@@ -19,6 +20,13 @@
 using namespace std;
 
 #pragma once
+
+//comparador usado para heap 
+struct Compare {
+    bool operator()(pair<float, int> const& p1, pair<float, int> const& p2) {
+        return p1.first > p2.first; // usamos a distancia para montar o min heap
+    }
+};
 
 class GrafoMatriz
 {
@@ -42,7 +50,7 @@ public:
     void DFS(int s, vector<int>&parent, vector<int>&level,  double &duration);
 
     int diameter();
-    int prox_diameter(); //determina o diametro aproximado
+    int prox_diameter(); //nao faz sentido mais tentarmos ver o diametro aproximado já que não tem heuristica admissivel para isso devido aos pesos
 
     void dfs(vector<vector<float>>g, int s, vector<bool>&visited); //temos uma dfs dedicada as componentes conexas
     void Grev(vector<vector<float>> &grev);//retorna um Grafo com as arestas invertidas;
@@ -59,13 +67,20 @@ public:
     //diametro em multithreading
     int diameter_multi();
 
-    void Djikstra();
+    int min_element_Dijkstra_vec(vector<float> cost, vector<bool> explored);
+    void Djikstra_vec(int s, vector<float>&cost, vector<int>&parent);
+    void Djikstra_heap(int s, vector<float>&cost, vector<int>&parent);
+
     int distance(int u, int v);
+
+    void Dijkstraporfavor(int src, vector<float>&dist, vector<int>&parent, double &duration);
+
+    //falta determinar a funcao de distancai de de diametro ja que precisamos de dijsktra para issso
 
 private:
     int n; //quantidade de vértices
     vector<vector<float>> matriz_de_adjacencia; //representação em matriz de adjacencia
     vector<int> degree; //grau de cada vértices
-};
+   };
 
 #endif
