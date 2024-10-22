@@ -161,7 +161,7 @@ using namespace std;
 
 int main() {
     
-    GrafoAdj g("2");
+    GrafoAdj g("1");
 
 
     vector<float> cost1, cost2;
@@ -169,10 +169,11 @@ int main() {
 
     double d;
     
-    g.Djikstra_vec(10,cost1,parent1);
-   
+    g.Djikstra_vec(1,cost1,parent1);
+    
+    cout << cost1[2] << endl;
     // cout << cost1[19];
-    cout << g.exist_edge(94, 993) << endl;
+    // cout << g.exist_edge(94, 993) << endl;
     // cout << g.exist_edge(9500,6534) << endl;
     // cout << g.exist_edge(6534,9492) << endl;
     // cout << g.exist_edge(9492,4780) << endl;
