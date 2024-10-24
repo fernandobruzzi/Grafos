@@ -22,7 +22,7 @@ using namespace std;
 #pragma once
 
 //comparador usado para heap 
-struct Compare {
+struct Compare1 {
     bool operator()(pair<float, int> const& p1, pair<float, int> const& p2) {
         return p1.first > p2.first; // usamos a distancia para montar o min heap
     }
@@ -37,7 +37,7 @@ public:
     int get_vertex(){return n;};
     int get_degree(int i){return degree[i-1];};
 
-    void set_edge(int i, int j, float w){matriz_de_adjacencia[i-1][j-1] = w; degree[i-1]++;};
+    void set_edge(int i, int j, float w){matriz_de_adjacencia[i-1][j-1] = w; degree[i-1]++;matriz_de_adjacencia[j-1][i-1] = w; degree[j-1]++;};
     
     int min_degree();
     int max_degree();
@@ -52,8 +52,7 @@ public:
     int diameter();
     int prox_diameter(); //nao faz sentido mais tentarmos ver o diametro aproximado já que não tem heuristica admissivel para isso devido aos pesos
 
-    void dfs(vector<vector<float>>g, int s, vector<bool>&visited); //temos uma dfs dedicada as componentes conexas
-    void Grev(vector<vector<float>> &grev);//retorna um Grafo com as arestas invertidas;
+    void dfs(int s, vector<bool>&visited, vector<int>&component); //temos uma dfs dedicada as componentes conexas
     void connected_components(vector<vector<int>>&components);
 
     // ~GrafoMatriz();
@@ -67,13 +66,14 @@ public:
     //diametro em multithreading
     int diameter_multi();
 
-    int min_element_Dijkstra_vec(vector<float> cost, vector<bool> explored);
-    void Djikstra_vec(int s, vector<float>&cost, vector<int>&parent);
-    void Djikstra_heap(int s, vector<float>&cost, vector<int>&parent);
+    void Djikstra_vec(int s, vector<float>&cost, vector<int>&parent,double&duration);
+    void Djikstra_heap(int s, vector<float>&cost, vector<int>&parent,double&duration);
 
     int distance(int u, int v);
 
-    void Dijkstraporfavor(int src, vector<float>&dist, vector<int>&parent, double &duration);
+    double avg_dijkstra_vec();
+    double avg_dijkstra_heap();
+    void path_i_to_j_and_cost(int i, int j, vector<int>& p, float& c);
 
     //falta determinar a funcao de distancai de de diametro ja que precisamos de dijsktra para issso
 

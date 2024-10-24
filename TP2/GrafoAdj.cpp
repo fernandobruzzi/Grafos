@@ -149,30 +149,8 @@ void GrafoAdj::DFS(int s, vector<int>&parent, vector<int>&level, double &duratio
 
 
 
-// int GrafoAdj::prox_diameter(){
-   
-//     //usamos a ideia da heurística "Second BFS para calcular" o diâmetro aproximado
-//     vector<int> parent, level;
-//     double duration;
-//     random_device rd;
-//     mt19937 gen(rd());
-//     uniform_int_distribution<int> distr(1,n);
 
-//     //sorteamos um numero aleatorio para realizar a BFS
-//     int r = distr(gen);
-
-//     BFS(r, parent, level, duration);
-//     auto max_it = max_element(level.begin(),level.end());
-//     r = int(max_it - level.begin());
-//     r++; //somamos por causa da indexacao
-
-//     BFS(r, parent, level, duration);
-//     max_it = max_element(level.begin(),level.end());
-//     return *max_it;
-// }
-
-//dfs para auxiliar o calculo das componentes conexas
-void GrafoAdj::dfs(vector<vector<pair<int,float>>>, int s, vector<bool>&visited){
+void GrafoAdj::dfs(int s, vector<bool>&visited, vector<int>&component){
     stack<int> st;
     st.push(s);
     visited[s]=1;
@@ -192,39 +170,14 @@ void GrafoAdj::dfs(vector<vector<pair<int,float>>>, int s, vector<bool>&visited)
 }
 
 
-void GrafoAdj::Grev(vector<vector<pair<int,float>>>&grev){
-
-    grev.resize(n);
-    
-    for(int i = 0 ; i<n ; i++){
-        for(pair<int,float>& j:lista_adjacencia[i]){
-            grev[j.first].push_back(make_pair(i,j.second));
-        }
-    }
-}
-
 void GrafoAdj::connected_components(vector<vector<int>>&components){
 
-    vector<float> visited(n,0); //como durante a dfs ele sempre marca os visitados, podemos definir um vetor de visitados todo de 0 inicialmente. Sendo que o vertice so se torna visitado quando tem valor 1 na sua posicao
-    vector<vector<pair<int,float>>> grev;
-    Grev(grev); //faz o grafo com as arestas invertidas
- 
+    vector<bool> visited(n,0); //como durante a dfs ele sempre marca os visitados, podemos definir um vetor de visitados todo de 0 inicialmente
 
-    for(int i = 0; i < n; i++){ //realizamos a BFS em todos os vértices que não tiverem sido atingindo ainda, como no início ninguém foi atingido, começamos do vértice indexado em 0 (vertice 1)
-        if(visited[i]!=1){
-            vector<bool> vis1(n,0);
-            vector<bool> vis2(n,0);
-
-            dfs(lista_adjacencia, i, vis1);
-            dfs(grev, i, vis2);
+    for(int i = 0; i < n; i++){//realizamos a BFS em todos os vértices que não tiverem sido atingindo ainda, como no início ninguém foi atingido, começamos do vértice indexado em 0 (vertice 1)
+        if(!visited[i]){
             vector<int> component;
-
-            for(int j = 0; j<n; j++){
-                if(vis1[j]&&vis2[j]){
-                    visited[j]=1;
-                    component.push_back(j+1);//por causa do indice
-                }
-            }
+            dfs(i, visited, component);
             components.push_back(component);
         }
     }
@@ -369,8 +322,9 @@ int GrafoAdj::diameter_multi() {
 }
 
 
-void GrafoAdj::Djikstra_vec(int s, vector<float>&cost, vector<int>&parent){
+void GrafoAdj::Djikstra_vec(int s, vector<float>&cost, vector<int>&parent, double &duration){
 
+    auto start = chrono::high_resolution_clock::now();
     s--;
     cost.resize(n,INFINITY);
     parent.resize(n, -1);
@@ -383,6 +337,7 @@ void GrafoAdj::Djikstra_vec(int s, vector<float>&cost, vector<int>&parent){
     //inicialmente temos que o custo de cada vértice é o peso da aresta que liga u a eles
     for(pair<int,float>&i:lista_adjacencia[s]){
         cost[i.first] = i.second;
+        parent[i.first] = s;
     }
 
     for(int c = 1; c < n; c++){
@@ -397,7 +352,14 @@ void GrafoAdj::Djikstra_vec(int s, vector<float>&cost, vector<int>&parent){
                 min_cost = cost[j];
             }
         }
-        if(v==-1){break;}//nao temos mais vertices a serem explorados
+
+        if(min_cost < 0){
+        cout << "Dijkstra não pode ser aplicada nesse grafo devido a presença de uma aresta negativa";
+        break;
+        //se cost[u] < 0, significa que na componente considerada onde estamos aplicando tem uma aresta com custo negativo, logo o dijkstra não irá retornar resultados corretos
+        }
+
+        if((v==-1)||(min_cost==INFINITY)){break;}//nao temos mais vertices a serem explorados
         explored[v]=true;
 
         for(pair<int,float>&u : lista_adjacencia[v]){
@@ -411,34 +373,80 @@ void GrafoAdj::Djikstra_vec(int s, vector<float>&cost, vector<int>&parent){
         }
 
     }
+    auto end = chrono::high_resolution_clock::now();
+    duration = double(chrono::duration_cast<chrono::nanoseconds>(end - start).count());
 }
 
+void GrafoAdj::Djikstra_heap(int s, vector<float>&cost, vector<int>&parent, double &duration){
+    
+    auto start = chrono::high_resolution_clock::now();
+    s--;
 
+    vector<bool> explored(n,0);
+    priority_queue<pair<float, int>, vector<pair<float, int>>, Compare2> heap;
+
+    parent.resize(n,-1);
+    cost.resize(n,INFINITY);
+
+    heap.push({0,s});
+    cost[s] = 0;
+    parent[s] = s;
+
+    while(!heap.empty()){
+
+        auto top = heap.top(); //pegamos o elemento do topo
+        int u = top.second;
+        heap.pop(); // removemos o elemento do topo
+
+        //como não atualizamos a nossa heap, temos que checar se um vértice já foi explorado antes ou não
+        if(explored[u]==false){
+        explored[u] = true;
+
+        if(cost[u] < 0){
+            cout << "Dijkstra não pode ser aplicada nesse grafo devido a presença de uma aresta negativa";
+            break;
+            //se cost[u] < 0, significa que na componente considerada onde estamos aplicando tem uma aresta com custo negativo, logo o dijkstra não irá retornar resultados corretos
+        }
+        
+        for(pair<int,float>&v : lista_adjacencia[u]){
+            if(cost[v.first] > cost[u] + (v.second)){
+                cost[v.first] = cost[u] + (v.second);
+                heap.push({v.second+cost[u],v.first});
+                parent[v.first] = u;
+                
+                }
+            }
+        }
+    }
+    auto end = chrono::high_resolution_clock::now();
+    duration = double(chrono::duration_cast<chrono::nanoseconds>(end - start).count());
+}
 
 //a ser calculada corretamente com dijkstra
-int GrafoAdj::distance(int i, int j){
-    //sabemos que a distancia entre dois vértices é dado pelo caminho mínimo entre eles, por isso usamos a BFS
-    vector<int> parent, level;
+float GrafoAdj::distance(int i, int j){
+    //sabemos que a distancia entre dois vértices é dado pelo caminho mínimo entre eles, por isso usamos Dijkstra
+    vector<int> parent;
+    vector<float> cost;
     double duration;
 
-    BFS(i, parent, level,duration);
-
-    return(level[j-1]);
+    Djikstra_heap(i,cost,parent,duration);
+    return(cost[j-1]);
 }
 
 
-int GrafoAdj::diameter(){
+float GrafoAdj::diameter(){
 
     //sabemos que o diamêtro do grafo pode ser obtido calculando a maior menor distância entre um par de vértices, ou seja, precisamos fazer uma BFS em todos os vértices e pegar o maior valor de level
     
-    vector<int> parent, level;
+    vector<int> parent;
+    vector<float> cost;
     double duration;
-    int d = -1; //menor valor possível para level
-    BFS(1, parent, level, duration); //se ao rodar a BFS eu não conseguir atingir todos os vértices do grafo, ele não é conexo
+    float d = -INFINITY; //valor usado para comparacao
+    Djikstra_heap(1, cost, parent, duration); //se ao rodar a BFS eu não conseguir atingir todos os vértices do grafo, ele não é conexo
     
     for (int i = 1; i <= n; i++) {
-        BFS(i, parent, level, duration);
-        auto maximum = max_element(level.begin(), level.end());
+        Djikstra_heap(i, cost, parent,duration);
+        auto maximum = max_element(cost.begin(), cost.end());
         if (*maximum > d) {
             d = *maximum;
             }
@@ -446,6 +454,84 @@ int GrafoAdj::diameter(){
     return d;
 }
 
+
+double GrafoAdj::avg_dijkstra_vec(){
+
+    vector<int> parent;
+    vector<float> cost;
+    double duration;
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<int> distr(1,n);
+
+    
+    int r;
+    int i = 0;
+    double avg = 0;
+
+    while(i<100){
+
+        r = distr(gen);   
+        Djikstra_vec(r,cost,parent,duration);
+        avg+= duration;
+        i++;
+    }
+    avg = avg/100;
+
+    return avg;
+
+}
+
+
+double GrafoAdj::avg_dijkstra_heap(){
+
+        
+    vector<int> parent;
+    vector<float> cost;
+    double duration;
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<int> distr(1,n);
+
+    
+    int r;
+    int i = 0;
+    double avg = 0;
+
+    while(i<100){
+
+        r = distr(gen);   
+        Djikstra_heap(r,cost,parent,duration);
+        avg+= duration;
+        i++;
+    }
+    avg = avg/100;
+
+    return avg;
+
+}
+
+void GrafoAdj::path_i_to_j_and_cost(int i, int j, vector<int>& p, float& c){
+
+
+    vector<float> cost;
+    vector<int> parent;
+    double duration;
+
+    Djikstra_heap(i,cost,parent,duration);
+    c = cost[j-1];
+
+    if(c==INFINITY){p = {-1};return;}; // nao temos caminho
+
+    p.push_back(j);
+    
+    int v = j-1;
+    while(v!=i-1){
+        p.push_back(parent[v]+1);
+        v = parent[v];
+    }
+    reverse(p.begin(),p.end());
+}
 // GrafoAdj::~GrafoAdj()
 // {
 

@@ -19,12 +19,12 @@ using namespace std;
 
 #pragma once
 
-// //comparador usado para heap 
-// struct Compare {
-//     bool operator()(pair<float, int> const& p1, pair<float, int> const& p2) {
-//         return p1.first > p2.first; // usamos a distancia para montar o min heap
-//     }
-// };
+//comparador usado para heap 
+struct Compare2 {
+    bool operator()(pair<float, int> const& p1, pair<float, int> const& p2) {
+        return p1.first > p2.first; // usamos a distancia para montar o min heap
+    }
+};
 
 class GrafoAdj
 {
@@ -35,7 +35,7 @@ public:
     int get_vertex(){return n;};
     int get_degree(int i){return degree[i-1];};
 
-    void set_edge(int i, int j, float w){lista_adjacencia[i-1].push_back(make_pair(j-1, w)); degree[i-1]+=1;};
+    void set_edge(int i, int j, float w){lista_adjacencia[i-1].push_back(make_pair(j-1, w)); degree[i-1]+=1;lista_adjacencia[j-1].push_back(make_pair(i-1, w)); degree[j-1]+=1;};
     
     int min_degree();
     int max_degree();
@@ -45,14 +45,13 @@ public:
 
     void BFS(int s, vector<int>&parent, vector<int>&level, double &duration); //definimos um vertice onde realizamos a busca e passamos dois parametros que serão modificados dentro da funcao
     void DFS(int s, vector<int>&parent, vector<int>&level,double &duration);
-    int distance(int u, int v);
+    float distance(int u, int v);
 
-    int diameter();
+    float diameter();
     int prox_diameter(); //nao faz sentido mais tentarmos ver o diametro aproximado já que não tem heuristica admissivel para isso devido aos pesos
 
-    void dfs(vector<vector<pair<int,float>>>, int s, vector<bool>&visited); //temos uma dfs dedicada as componentes conexas
+    void dfs(int s, vector<bool>&visited, vector<int>&component); //temos uma dfs dedicada as componentes conexas
     
-    void Grev(vector<vector<pair<int,float>>>&grev); //retorna um Grafo com as arestas invertidas
     void connected_components(vector<vector<int>>&components);
 
 
@@ -65,9 +64,13 @@ public:
     //diametro em multithreading
     int diameter_multi();
 
-    void Djikstra_vec(int s, vector<float>&cost, vector<int>&parent);
+    void Djikstra_vec(int s, vector<float>&cost, vector<int>&parent, double &duration);
+    void Djikstra_heap(int s, vector<float>&cost, vector<int>&parent,double &duration);
+    double avg_dijkstra_vec();
+    double avg_dijkstra_heap();
+    void path_i_to_j_and_cost(int i, int j, vector<int>& p, float& c);
 
-
+    //funcao implementada para auxiliar na checagem se o grafo foi lido corretamente ou nao
     bool exist_edge(int i, int j){
         i--;
         bool b = false;
