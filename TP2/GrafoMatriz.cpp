@@ -1,5 +1,5 @@
 #include "GrafoMatriz.h"
-const float INF = 1e9;
+
 
 GrafoMatriz::GrafoMatriz(string num){
 
@@ -19,7 +19,7 @@ GrafoMatriz::GrafoMatriz(string num){
     getline(myfile, linha);//pegamos a primeira linha que é sempre a quantidade de vertices
      
     n = stoi(linha);
-    matriz_de_adjacencia.resize(n,vector<float>(n,INF));
+    matriz_de_adjacencia.resize(n,vector<float>(n,INFINITY));
     
     degree.resize(n,0);
     
@@ -101,7 +101,7 @@ void GrafoMatriz::BFS(int s, vector<int>&parent, vector<int>&level, double &dura
         s = q.front();
         q.pop();
         for(int i = 0; i<n; i++){
-            if((matriz_de_adjacencia[s][i]!= INF)&&(level[i]==-1)){
+            if((matriz_de_adjacencia[s][i]!= INFINITY)&&(level[i]==-1)){
                 parent[i] = s+1; //somamos por causa da deducao feita no inicio e por causa da posicao deslocada pela matriz
                 level[i] = level[s] +1; // o level do filho é 1 abaixo do pai
                 q.push(i);
@@ -133,7 +133,7 @@ void GrafoMatriz::DFS(int s, vector<int>&parent, vector<int>&level, double &dura
 
 
         for(int i = 0; i < n; i++){
-            if((matriz_de_adjacencia[s][i]!=INF)&& (level[i]==-1)){
+            if((matriz_de_adjacencia[s][i]!=INFINITY)&& (level[i]==-1)){
                 st.push(i);
                 parent[i] = s+1; //somamos por causa da deducao feita no inicio e por causa da posicao deslocada pela matriz
                 // level[i] = level[s] + 1; //o nivel do filho é um abaixo do pai
@@ -380,7 +380,7 @@ void GrafoMatriz::Djikstra_vec(int s, vector<float>&cost, vector<int>&parent,dou
         }
 
         if(min_cost < 0){
-        cout << "Dijkstra não pode ser aplicada nesse grafo devido a presença de uma aresta negativa";
+        cout << "Dijkstra não pode ser aplicada nesse grafo devido a presença de uma ou mais arestas negativa";
         break;
         //se cost[u] < 0, significa que na componente considerada onde estamos aplicando tem uma aresta com custo negativo, logo o dijkstra não irá retornar resultados corretos
         }
@@ -431,7 +431,7 @@ void GrafoMatriz::Djikstra_heap(int s, vector<float>&cost, vector<int>&parent,do
         explored[u] = true;
 
         if(cost[u] < 0){
-            cout << "Dijkstra não pode ser aplicada nesse grafo devido a presença de uma aresta negativa";
+            cout << "Dijkstra não pode ser aplicada nesse grafo devido a presença de uma ou mais arestas negativa";
             break;
             //se cost[u] < 0, significa que na componente considerada onde estamos aplicando tem uma aresta com custo negativo, logo o dijkstra não irá retornar resultados corretos
         }
@@ -528,6 +528,7 @@ double GrafoMatriz::avg_dijkstra_heap(){
 }
 
 void GrafoMatriz::path_i_to_j_and_cost(int i, int j, vector<int>& p, float& c){
+    
     vector<float> cost;
     vector<int> parent;
     double duration;

@@ -354,7 +354,7 @@ void GrafoAdj::Djikstra_vec(int s, vector<float>&cost, vector<int>&parent, doubl
         }
 
         if(min_cost < 0){
-        cout << "Dijkstra não pode ser aplicada nesse grafo devido a presença de uma aresta negativa";
+        cout << "Dijkstra não pode ser aplicada nesse grafo devido a presença de uma ou mais arestas negativa";
         break;
         //se cost[u] < 0, significa que na componente considerada onde estamos aplicando tem uma aresta com custo negativo, logo o dijkstra não irá retornar resultados corretos
         }
@@ -403,7 +403,7 @@ void GrafoAdj::Djikstra_heap(int s, vector<float>&cost, vector<int>&parent, doub
         explored[u] = true;
 
         if(cost[u] < 0){
-            cout << "Dijkstra não pode ser aplicada nesse grafo devido a presença de uma aresta negativa";
+            cout << "Dijkstra não pode ser aplicada nesse grafo devido a presença de uma ou mais arestas negativa";
             break;
             //se cost[u] < 0, significa que na componente considerada onde estamos aplicando tem uma aresta com custo negativo, logo o dijkstra não irá retornar resultados corretos
         }

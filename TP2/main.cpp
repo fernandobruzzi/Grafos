@@ -117,15 +117,19 @@ void write_csv_graph(int i) {
         return;
     }
 
+    if(!myfileadj.is_open()){
+        cerr << "Erro ao abrir os arquivos CSV" << endl;
+        return;
+    }
+
     // escrever cabeçalhos
     string header = ",Distancia 10-20,Caminho 10-20,Distancia 10-30,Caminho 10-30,Distancia 10-40,Caminho 10-40,Distancia 10-50,Caminho 10-50,Distancia 10-60,Caminho 10-60, Tempo medio Dijkstra heap[nanosegundos], Tempo medio Dikstra sem heap[nanosegundos]";
-    myfilemat << header << endl;
+    // myfilemat << header << endl;
     myfileadj << header << endl;
 
 
     string grafo_num = to_string(i);
         
-    // GrafoMatriz
     GrafoMatriz grafomatriz(grafo_num);
     myfilemat << "Grafo " << i << ",";
     
@@ -139,6 +143,7 @@ void write_csv_graph(int i) {
         myfilemat << p << " ";
     }
     myfilemat << ",";
+    path.clear();
     
     
     grafomatriz.path_i_to_j_and_cost(10,30, path, cost);
@@ -147,6 +152,7 @@ void write_csv_graph(int i) {
         myfilemat << p << " ";
     }
     myfilemat << ",";
+    path.clear();
 
     grafomatriz.path_i_to_j_and_cost(10,40, path, cost);
     myfilemat << cost << ",";
@@ -154,6 +160,7 @@ void write_csv_graph(int i) {
         myfilemat << p << " ";
     }
     myfilemat << ",";
+    path.clear();
 
     grafomatriz.path_i_to_j_and_cost(10,50, path, cost);
     myfilemat << cost << ",";
@@ -161,6 +168,7 @@ void write_csv_graph(int i) {
         myfilemat << p << " ";
     }
     myfilemat <<  ",";
+    path.clear();
 
     grafomatriz.path_i_to_j_and_cost(10,60, path, cost);
     myfilemat << cost << ",";
@@ -168,6 +176,7 @@ void write_csv_graph(int i) {
         myfilemat << p << " ";
     }
     myfilemat << ",";
+    path.clear();
 
     myfilemat << grafomatriz.avg_dijkstra_heap() << "," << grafomatriz.avg_dijkstra_vec();
 
@@ -184,6 +193,7 @@ void write_csv_graph(int i) {
         myfileadj << p << " ";
     }
     myfileadj <<  ",";
+    path.clear();
     
     grafoadj.path_i_to_j_and_cost(10,30, path, cost);
     myfileadj << cost << ",";
@@ -191,6 +201,7 @@ void write_csv_graph(int i) {
         myfileadj << p << " ";
     }
     myfileadj << ",";
+    path.clear();
 
     grafoadj.path_i_to_j_and_cost(10,40, path, cost);
     myfileadj << cost << ",";
@@ -198,6 +209,7 @@ void write_csv_graph(int i) {
         myfileadj << p << " ";
     }
     myfileadj <<  ",";
+    path.clear();
 
     grafoadj.path_i_to_j_and_cost(10,50, path, cost);
     myfileadj << cost << ",";
@@ -205,18 +217,21 @@ void write_csv_graph(int i) {
         myfileadj << p << " ";
     }
     myfileadj << ",";
+    path.clear();
     
     
-
+    path.clear();
     grafoadj.path_i_to_j_and_cost(10,60, path, cost);
     myfileadj << cost << ",";
     for(int&p:path){
         myfileadj << p << " ";
     }
     myfileadj << ",";
+    path.clear();
 
 
     myfileadj << grafoadj.avg_dijkstra_heap() << "," << grafoadj.avg_dijkstra_vec();
+    myfileadj << grafoadj.avg_dijkstra_heap() << "," << "infinito";
 
     // fechar os arquivos CSV
     myfilemat.close();
@@ -304,10 +319,9 @@ void write_csv_rede_colaboração(){
 int main() {
     
     write_csv_rede_colaboração();
-    // for(int i =1; i <=5 ; i++){
-    //     write_csv_graph(i);
-    // }
-
+    for(int i =1; i <=5 ; i++){
+        write_csv_graph(i);
+    }
 
     return 0;
 }
