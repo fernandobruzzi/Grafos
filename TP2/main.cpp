@@ -59,7 +59,7 @@ void distancia_redes_de_colaboração(vector<pair<vector<int>,float>>&path_dist)
 }
     
 void find_names(vector<int>vertex_seq, vector<string>&names){
-    //funcao que transforma uma sequencia de vertices em uma sequencia de nomes
+  	//funcao que transforma uma sequencia de vertices em uma sequencia de nomes
     names.resize(vertex_seq.size());
     
     string source = "grafos_de_estudo/rede_colaboracao_vertices.txt";
@@ -322,6 +322,8 @@ int main() {
     for(int i =1; i <=5 ; i++){
         write_csv_graph(i);
     }
+
+
 
     return 0;
 }

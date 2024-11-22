@@ -37,6 +37,9 @@ GrafoMatriz::GrafoMatriz(string num){
         set_edge(stoi(v), stoi(u), stof(w));
 
     }
+    for(int i = 0; i <n; i++){
+        matriz_de_adjacencia[i][i] = 0; //já que o custo de ir de 1 vértice até ele mesmo é não passando por nenhuma aresta
+    }
 }
 
 int GrafoMatriz:: min_degree(){
