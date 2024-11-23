@@ -255,7 +255,6 @@ pair<set<int>,set<int>> GrafoAdj::min_cut(int s, int t){
     pair<set<int>,set<int>> set_A_set_B;
     for(int i = 0; i < n; i++){
         if(visited[i]){
-            cout << i+1 << " foi visitado";
             set_A_set_B.first.insert(i+1);//inserimos o elemento com seu indice correto para o usuário
         }
         else{

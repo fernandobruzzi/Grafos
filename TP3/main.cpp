@@ -39,16 +39,23 @@ void results(){
 
 }
 
-void wtf(){
 
-}
 
 int main() {
     
     results();
-    // GrafoAdj g("12",true);
-    // double t=0;
-    // cout << g.Ford_Fulkerson(1,7,true,t);
-    // return 0;
 
+    // GrafoAdj g("12", true);
+
+    // pair<set<int>,set<int>> set_A_set_B =g.min_cut(1,7);
+    // cout << endl <<  "Conjunto A : ";
+    // for(set<int>::iterator itr=set_A_set_B.first.begin(); itr != set_A_set_B.first.end();itr++){
+    //     cout << *itr << " ";
+    // }
+    // cout << endl;
+    // cout << "Conjunto B : ";
+    // for(set<int>::iterator itr=set_A_set_B.second.begin(); itr != set_A_set_B.second.end();itr++){
+    //     cout << *itr << " ";
+    // }
+    // cout << endl;
 }
