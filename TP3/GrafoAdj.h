@@ -5,15 +5,13 @@
 #include <vector>
 #include <queue> //para bfs
 #include <stack> // para dfs
-#include <numeric> //
+#include <numeric> 
 #include <iostream>
 #include <fstream> //para a leitura
 #include <sstream> //para a leitura
-#include <random>//para sortear inteiros  tralvez nao precisa
-#include <chrono> //para medir o tempo de execucao
 
-#include <thread> //para fazer multithread para acelerar o algoritmo do diametro
-#include <mutex>
+#include <chrono> //para medir o tempo de execucao
+#include <set>  //para criar o conjunto A e B num corte mínimo
 #include <limits> //para representar o infinito para inteiros
 
 using namespace std;
@@ -41,10 +39,10 @@ public:
 
     void find_path_fftask(vector<vector<array<int,2>>>& g_res, int s, int t, vector<array<int,2>>&parent); //funcao usada para achar um caminho entre s e t na bfs executada em ford fulkerson
     void augment_ff(int s, int &f, vector<array<int, 2>>&p, vector<vector<array<int,2>>>&g_res);
-    bool original_edge(int &u, int &v, int &c_u_to_v) ;
     int Ford_Fulkerson(int s, int t, bool store_in_disk, double& execution_time);
     double avg_ff();
     
+    pair<set<int>,set<int>> min_cut(int s, int t);
     
 
 private:

@@ -35,7 +35,7 @@ GrafoAdj::GrafoAdj(string num, bool directed){
         ss >> c;
         
         set_edge(stoi(v), stoi(u), stoi(c));
-        // if(!is_directed){set_edge(stoi(u), stoi(v), stoi(c));}; //se o grafo nao for direcionado precisamos apenas tomar o cuidado de ao setar u-v setar v-u
+        if(!is_directed){set_edge(stoi(u), stoi(v), stoi(c));}; //se o grafo nao for direcionado precisamos apenas tomar o cuidado de ao setar u-v setar v-u
     }
 
     myfile.close();
@@ -48,7 +48,7 @@ void GrafoAdj:: find_path_fftask(vector<vector<array<int,2>>>& g_res, int s, int
     queue<int> q;
     parent.assign(n,array<int,2>{-1,-1}); //iniciamos todo mundo inicialmente com o pai sendo -1, que nunca será o indice de nenhum vertice. entao, ao final da execucao do algoritmo se o pai de t ainda for -1 é porque nao temos um caminho entre s-t. alem disso, guardamos qual a capacidade da aresta utilizada
     vector<bool> visited(n,false);
-
+    
     q.push(s);
 
     while(!q.empty()){
@@ -60,8 +60,9 @@ void GrafoAdj:: find_path_fftask(vector<vector<array<int,2>>>& g_res, int s, int
 
 
         for(array<int,2> & e : g_res[u]){
-            if((e[1]>0) && (visited[e[0]]==false)){ // só precisamos analisar uma aresta se ela tiver capacidade maior do que 0, pois só assim podemos enviar mais fluxo por ela
-            //fazemos isso para evitar passar por um mesmo vertice mais de uma vez
+            if((e[1]>0) && (visited[e[0]]==false)){ 
+                // só precisamos analisar uma aresta se ela tiver capacidade maior do que 0, pois só assim podemos enviar mais fluxo por ela
+                //fazemos isso para evitar passar por um mesmo vertice mais de uma vez
                 q.push(e[0]);
                 parent[e[0]][0] = u;
                 parent[e[0]][1] = e[1];
@@ -73,35 +74,24 @@ void GrafoAdj:: find_path_fftask(vector<vector<array<int,2>>>& g_res, int s, int
     }
 }
 
-bool GrafoAdj:: original_edge(int &u, int &v, int &c_u_to_v){
-    for(array<int,3> & e :lista_adjacencia[u]){
-         if(e[0]==v){
-            if(e[1]-e[2]==c_u_to_v){
-                return true; //sabemos que se (u,v) for uma aresta original, ela terá capacidade  = c((u,v))-fluxo((u,v))
-            }
-         }
-    }
-    return false;
-}
 
 void GrafoAdj::augment_ff(int s, int &f, vector<array<int, 2>>&p, vector<vector<array<int,2>>>&g_res){
     
-    int min = numeric_limits<int>::max(); //a partir desse valor vamos fazer as comparacoes para que possamos achar a aresta de menor custo
-
-
+    int min = numeric_limits<int>::max(); //a partir desse valor vamos fazer as comparacoes para que possamos achar a aresta de menor custo, o GARGALO
     for(array<int,2> & m : p){
         if(m[1] < min){
             min = m[1];
         }
     }
     f+=min;
-     
+    
+    //agora basta atualizar o fluxo no grafo orginal considerando se temos uma aresta original ou não
     int u = s;
     for(int m = 0; m < p.size(); m++){ 
         
         for(array<int,3> & e : lista_adjacencia[u]){
             if (e[0]==p[m][0]){
-                if(e[1]-e[2]==p[m][1]){ //checamos se temos uma aresta original ou nao
+                if(e[1]-e[2]==p[m][1]){ //checamos se temos uma aresta original ou nao 
                     e[2] += min;
                 }
                 else{
@@ -143,25 +133,23 @@ int GrafoAdj:: Ford_Fulkerson(int s, int t, bool store_in_disk, double& executio
     
     while(exist_path){
 
-        // find_path_fftask(g_res, s, t, parent);
-
-        //montamos o caminho e fazemos a atualizacao do fluxo conforme é necessario
-        // vector<array<int,2>> p(1); // o caminho contem sempre o vertice e o valor do fluxo da aresta utilizada, iniciamos com 1 porque não sabemos o tamanho do caminho e queremos evitar o problema de ter um vetor de tamanho maior que o caminho para evitar o acesso a indices que nao existem
-        
+        //montamos o caminho e fazemos a atualizacao do fluxo conforme for necessario
         vector<array<int,2>> p;
+        //como montamos o caminho de trás para frente, devido a estrutura parent, o primeiro vértice do caminho é t
         int u = t;
-        
         while(u!=s){
-
             p.push_back(array<int,2>{u,parent[u][1]});
-            u=parent[u][0];// é importante notar que aqui o nosso caminho p não possui o vértice s diretamente 
+            u=parent[u][0];
         }
-        // p.push_back(make_pair(parent[u].first, parent[u].second));
+        // é importante notar que aqui o nosso caminho p não possui o vértice s diretamente devido a condição de parada do while
+        
         //agora precisamos apenas inverter o caminho
         reverse(p.begin(),p.end());
 
+        //empurramos mais fluxo no grafo original
         augment_ff(s,f,p,g_res);
         //agora precisamos atualizar nosso grafo residual, para fazer isso vamos reconstruir ele do zero
+        
         g_res.clear();
         g_res.resize(n);
         for(int i = 0; i < n; i++){
@@ -171,8 +159,10 @@ int GrafoAdj:: Ford_Fulkerson(int s, int t, bool store_in_disk, double& executio
                 }
             }
         
+        //checamos se ainda temos um caminho no grafo residual entre s e t, se tivermos o nosso algoritmo continua
         find_path_fftask(g_res, s, t, parent);
         if(parent[t][0]==-1){exist_path=0;};
+
         }
 
     auto end = chrono::high_resolution_clock::now();
@@ -197,19 +187,10 @@ int GrafoAdj:: Ford_Fulkerson(int s, int t, bool store_in_disk, double& executio
     myfiletext << "O fluxo em cada aresta e: " << endl;
     for(int i = 0; i < n; i ++){
         for(array<int,3>& e: lista_adjacencia[i]){
-            myfiletext << i+1 << " -> " << e[0]+1 << " c(" << i+1 << "," << e[0]+1<<") = " << e[1] <<"/"<< e[2] << endl;
+            myfiletext << i+1 << " -> " << e[0]+1 << " f(" << i+1 << "," << e[0]+1<<") = " << e[1] <<"/"<< e[2] << endl;
         }
     }
-
-
-
-    // myfiletext << endl << endl << endl << "agora ver o residual" << endl;
-    // for(int i = 0; i < n; i++){
-    //     for(array<int,2> & e : g_res[i]){
-    //         myfiletext << i+1  << " " << e[0]+1 << " com capacidade " << e[1] << endl;
-    //         }
-    //     }
-    // fechar os arquivos de texto
+    // fechar o arquivo de texto
     myfiletext.close();
     }
 
@@ -218,7 +199,7 @@ int GrafoAdj:: Ford_Fulkerson(int s, int t, bool store_in_disk, double& executio
 
 
 double GrafoAdj::avg_ff(){
-
+    //obtêm a média de uma execucao de ford fulkerson a partir de 10 amostras
     double average = 0;
     for(int k = 0; k<10; k++){
         double execution_time = 0;
@@ -229,4 +210,58 @@ double GrafoAdj::avg_ff(){
     average = average/1000;//dividimos por 1000 aqui para passar de milissegundos para segundos 
 
     return average;
+}
+
+pair<set<int>,set<int>> GrafoAdj::min_cut(int s, int t){
+
+    //para achar o corte mínimo vamos aplicar o algoritmo de Ford_Fulkerson e depois realizar uma busca no grafo residual a partir de s
+    //sabemos que quando a rede estiver passando o fluxo máximo, o conjunto de vértices que define um corte mínimo será a união de dois conjuntos de vértices 
+    //no grafo residual, sendo que em cada um deles tem os seus vértices internos atingindo todos os outros que vértices que fazem parte da mesma componenete
+    double time;
+    Ford_Fulkerson(s,t,false,time);
+
+    //agora que já temos o fluxo máximo passando, podemos montar nosso grafo residual e realizar a busca
+    vector<vector<array<int,2>>> g_res(n);
+    for(int i = 0; i < n; i++){
+        for(array<int,3> & e : lista_adjacencia[i]){
+            //sabemos que cada aresta do grafo original gera duas novas arestas no grafo residual
+            g_res[i].push_back(array<int,2>{e[0],e[1]-e[2]});
+            g_res[e[0]].push_back(array<int, 2>{i,e[2]});
+        }
+    }
+
+    s--; //para a execucao da busca
+    vector<bool> visited(n,false);
+    queue<int> qu;
+
+    visited[s]=true;
+    qu.push(s);
+    int u;
+
+    while(!qu.empty()){
+        
+        u = qu.front(); 
+        qu.pop();
+
+        for(array<int,2> & e: g_res[u]){
+            if((e[1]>0)&&(visited[e[0]]==false)){
+                qu.push(e[0]);
+                visited[e[0]]=true;
+            }
+        }
+    }
+
+    //agora, partindo da premissa mencionada anteriormente, podemos criar os nossos conjuntos A e B
+    pair<set<int>,set<int>> set_A_set_B;
+    for(int i = 0; i < n; i++){
+        if(visited[i]){
+            cout << i+1 << " foi visitado";
+            set_A_set_B.first.insert(i+1);//inserimos o elemento com seu indice correto para o usuário
+        }
+        else{
+            set_A_set_B.second.insert(i+1);
+        }
+    }
+
+    return set_A_set_B;
 }
